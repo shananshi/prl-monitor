@@ -1,0 +1,358 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="PRL Monitor">
+<meta name="theme-color" content="#080c18">
+<title>PRL Monitor</title>
+<style>
+:root{--bg:#080c18;--s1:#0f1523;--s2:#161e30;--bd:#1c2840;--bd2:#243050;--blue:#3b82f6;--blue2:#60a5fa;--green:#22c55e;--yellow:#eab308;--red:#ef4444;--purple:#a78bfa;--text:#e2e8f0;--muted:#3d5070;--muted2:#6b7fa0;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+*,*::before,*::after{box-sizing:inherit;margin:0;padding:0}
+html{height:100%}
+body{background:var(--bg);color:var(--text);font-family:-apple-system,BlinkMacSystemFont,'SF Pro Text','Helvetica Neue',sans-serif;-webkit-font-smoothing:antialiased;min-height:100%;overscroll-behavior:none}
+.app{max-width:460px;margin:0 auto;min-height:100vh;display:flex;flex-direction:column}
+.hdr{position:sticky;top:env(safe-area-inset-top,0px);background:rgba(8,12,24,.94);backdrop-filter:blur(24px);-webkit-backdrop-filter:blur(24px);border-bottom:1px solid var(--bd);padding:13px 18px 11px;display:flex;align-items:center;justify-content:space-between;z-index:99}
+.hdr-id{display:flex;align-items:center;gap:10px}
+.logo{width:34px;height:34px;border-radius:9px;background:linear-gradient(135deg,#1d4ed8,#7c3aed);display:flex;align-items:center;justify-content:center;font-weight:800;font-size:14px;color:#fff;flex-shrink:0}
+.hdr-title{font-size:16px;font-weight:650;letter-spacing:-.2px}
+.hdr-sub{font-size:11px;color:var(--muted2);margin-top:1px}
+.hdr-right{display:flex;align-items:center;gap:8px}
+.btn-r{display:flex;align-items:center;gap:5px;background:var(--s2);border:1px solid var(--bd2);color:var(--blue2);border-radius:9px;padding:7px 13px;font-size:12px;font-weight:500;cursor:pointer;-webkit-tap-highlight-color:transparent}
+.btn-r:active{background:var(--bd)}
+.btn-sm{background:var(--s2);border:1px solid var(--bd2);color:var(--muted2);border-radius:9px;padding:7px 10px;font-size:13px;cursor:pointer;-webkit-tap-highlight-color:transparent}
+.btn-sm:active{background:var(--bd)}
+.spin{animation:spin .9s linear infinite}
+@keyframes spin{to{transform:rotate(360deg)}}
+.login{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:32px 24px}
+.login-logo{width:72px;height:72px;border-radius:20px;background:linear-gradient(135deg,#1d4ed8,#7c3aed);display:flex;align-items:center;justify-content:center;font-size:36px;margin-bottom:24px}
+.login-title{font-size:24px;font-weight:700;letter-spacing:-.5px;margin-bottom:8px}
+.login-sub{font-size:14px;color:var(--muted2);text-align:center;line-height:1.5;margin-bottom:32px}
+.login-box{width:100%;background:var(--s1);border:1px solid var(--bd);border-radius:16px;padding:20px;display:flex;flex-direction:column;gap:12px}
+.login-label{font-size:11px;color:var(--muted2);text-transform:uppercase;letter-spacing:.6px}
+.login-input{width:100%;background:var(--s2);border:1px solid var(--bd2);border-radius:10px;padding:12px 14px;color:var(--text);font-size:13px;font-family:'SF Mono','Menlo',monospace;outline:none;transition:border-color .15s}
+.login-input:focus{border-color:var(--blue)}
+.login-input::placeholder{color:var(--muted);font-size:12px}
+.btn-login{width:100%;background:var(--blue);color:#fff;border:none;border-radius:10px;padding:13px;font-size:15px;font-weight:600;cursor:pointer;-webkit-tap-highlight-color:transparent}
+.btn-login:active{filter:brightness(.85)}
+.login-err{font-size:12px;color:var(--red);text-align:center;display:none;line-height:1.5}
+.login-hint{font-size:11px;color:var(--muted);text-align:center;margin-top:12px}
+.tsbar{display:flex;align-items:center;gap:7px;font-size:11px;color:var(--muted2);padding:10px 18px 0}
+.dot{width:6px;height:6px;border-radius:50%;flex-shrink:0}
+.tsbar-r{margin-left:auto}
+.body{flex:1;padding:12px 18px 32px;display:flex;flex-direction:column;gap:10px}
+.slabel{font-size:10px;color:var(--muted);text-transform:uppercase;letter-spacing:.7px;padding:4px 1px 2px}
+.g2{display:grid;grid-template-columns:1fr 1fr;gap:9px}
+.card{background:var(--s1);border:1px solid var(--bd);border-radius:14px;padding:13px 14px}
+.card.hi{border-color:rgba(59,130,246,.35)}
+.cl{font-size:10px;color:var(--muted2);margin-bottom:5px}
+.cv{font-size:21px;font-weight:720;letter-spacing:-.5px;line-height:1}
+.cu{font-size:12px;font-weight:400;color:var(--muted2);margin-left:2px}
+.cs{font-size:10.5px;color:var(--muted2);margin-top:5px}
+.blue{color:var(--blue2)}.green{color:var(--green)}.yellow{color:var(--yellow)}.purple{color:var(--purple)}.red{color:var(--red)}
+.chart-wrap{background:var(--s1);border:1px solid var(--bd);border-radius:14px;padding:12px 14px 14px}
+.chart-top{display:flex;align-items:center;justify-content:space-between;margin-bottom:10px}
+.chart-t{font-size:12px;font-weight:600}
+.chart-v{font-size:12px;font-weight:600;color:var(--blue2)}
+canvas{display:block}
+.scard{background:var(--s1);border:1px solid var(--bd);border-radius:14px;overflow:hidden}
+.scard-hdr{display:flex;align-items:center;justify-content:space-between;padding:11px 15px;border-bottom:1px solid var(--bd);font-size:12px;font-weight:600}
+.badge{font-size:10px;color:var(--muted2);background:var(--s2);padding:2px 8px;border-radius:20px;border:1px solid var(--bd)}
+.wrow{display:flex;align-items:center;gap:11px;padding:9px 15px;border-bottom:1px solid var(--bd)}
+.wrow:last-child{border-bottom:none}
+.wdot{width:8px;height:8px;border-radius:50%;flex-shrink:0}
+.wname{font-size:12.5px;font-weight:550;flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.whr{font-size:13px;font-weight:650;color:var(--blue2);white-space:nowrap}
+.wtime{font-size:10px;color:var(--muted2);white-space:nowrap;text-align:right;margin-top:1px}
+.wagent{font-size:9.5px;color:var(--muted);margin-top:1px}
+.prow{display:flex;align-items:center;justify-content:space-between;padding:10px 15px;border-bottom:1px solid var(--bd)}
+.prow:last-child{border-bottom:none}
+.pamt{font-size:14px;font-weight:650;color:var(--green)}
+.pmeta{text-align:right;font-size:10.5px;color:var(--muted2);line-height:1.5}
+.ptx{font-size:10px;color:var(--blue2);font-family:'SF Mono','Menlo',monospace;margin-top:2px}
+.kv{display:flex;align-items:center;justify-content:space-between;padding:9px 15px;border-bottom:1px solid var(--bd);font-size:12.5px}
+.kv:last-child{border-bottom:none}
+.kk{color:var(--muted2)}.kv-v{font-weight:550}
+.stale{background:rgba(234,179,8,.08);border:1px solid rgba(234,179,8,.25);border-radius:12px;padding:10px 14px;font-size:12px;color:var(--yellow);display:flex;align-items:center;gap:8px}
+.hint{text-align:center;font-size:11px;color:var(--muted);padding:8px 0 0}
+.loading{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:16px;color:var(--muted2);font-size:14px}
+.spinner{width:32px;height:32px;border:2px solid var(--bd2);border-top-color:var(--blue);border-radius:50%;animation:spin .8s linear infinite}
+</style>
+</head>
+<body>
+<div class="app">
+
+  <!-- Header -->
+  <div class="hdr" id="hdr" style="display:none">
+    <div class="hdr-id">
+      <div class="logo">P</div>
+      <div>
+        <div class="hdr-title">PRL Monitor</div>
+        <div class="hdr-sub" id="walletLabel"></div>
+      </div>
+    </div>
+    <div class="hdr-right">
+      <button class="btn-sm" onclick="logout()" title="Switch wallet">⇄</button>
+      <button class="btn-r" id="rb" onclick="doRefresh()"><span id="ri">↻</span> Refresh</button>
+    </div>
+  </div>
+
+  <!-- Login -->
+  <div class="login" id="loginScreen">
+    <div class="login-logo">⛏️</div>
+    <div class="login-title">PRL Monitor</div>
+    <div class="login-sub">Enter your Pearl wallet address to view live mining stats.</div>
+    <div class="login-box">
+      <div class="login-label">Wallet Address</div>
+      <input class="login-input" id="wi" type="text" placeholder="prl1…"
+        autocomplete="off" autocorrect="off" autocapitalize="none" spellcheck="false">
+      <div class="login-err" id="loginErr"></div>
+      <button class="btn-login" id="loginBtn" onclick="loginLoad()">Load Stats</button>
+    </div>
+    <div class="login-hint">Stored only on this device — never shared.</div>
+  </div>
+
+  <!-- Loading -->
+  <div class="loading" id="loadingScreen" style="display:none">
+    <div class="spinner"></div>
+    <div>Fetching your stats…</div>
+  </div>
+
+  <!-- Status bar -->
+  <div id="tsbarWrap" style="display:none">
+    <div class="tsbar">
+      <div class="dot" id="dot"></div>
+      <span id="stxt"></span>
+      <span class="tsbar-r" id="tslabel"></span>
+    </div>
+    <div style="display:flex;align-items:center;justify-content:space-between;padding:6px 18px 0">
+      <span style="font-size:11px;color:var(--muted2)">PRL Price</span>
+      <span style="font-size:15px;font-weight:700;color:var(--green)" id="priceDisplay">—</span>
+    </div>
+  </div>
+
+  <!-- Dashboard -->
+  <div class="body" id="body" style="display:none"></div>
+
+</div>
+<script>
+let WALLET = '';
+let current = null;
+
+function fH(h){if(!h||isNaN(h))return{v:"0",u:"H/s"};h=h*4294967296;if(h>=1e18)return{v:(h/1e18).toFixed(2),u:"EH/s"};if(h>=1e15)return{v:(h/1e15).toFixed(2),u:"PH/s"};if(h>=1e12)return{v:(h/1e12).toFixed(2),u:"TH/s"};if(h>=1e9)return{v:(h/1e9).toFixed(2),u:"GH/s"};if(h>=1e6)return{v:(h/1e6).toFixed(2),u:"MH/s"};if(h>=1e3)return{v:(h/1e3).toFixed(2),u:"KH/s"};return{v:h.toFixed(0),u:"H/s"};}
+function fP(n,d=4){if(n==null||isNaN(n))return'—';return(n/1e8).toFixed(d);}
+function ago(ts){const s=Math.floor(Date.now()/1000)-ts;if(s<60)return s+'s ago';if(s<3600)return Math.floor(s/60)+'m ago';if(s<86400)return Math.floor(s/3600)+'h ago';return Math.floor(s/86400)+'d ago';}
+function fD(ts){if(!ts)return'—';return new Date(ts*1000).toLocaleString('en-US',{month:'short',day:'numeric',hour:'2-digit',minute:'2-digit'});}
+function wSt(ts){const s=Date.now()/1000-(ts||0);if(s<300)return{c:'var(--green)',g:'0 0 7px var(--green)'};if(s<1800)return{c:'var(--yellow)',g:'none'};return{c:'var(--red)',g:'none'};}
+function esc(s){return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;');}
+
+function showLogin(err){
+  document.getElementById('loginScreen').style.display='flex';
+  document.getElementById('loadingScreen').style.display='none';
+  document.getElementById('hdr').style.display='none';
+  document.getElementById('tsbarWrap').style.display='none';
+  document.getElementById('body').style.display='none';
+  const el=document.getElementById('loginErr');
+  if(err){el.textContent=err;el.style.display='block';}
+  else{el.style.display='none';}
+  document.getElementById('loginBtn').textContent='Load Stats';
+  document.getElementById('loginBtn').disabled=false;
+}
+function showLoading(){
+  document.getElementById('loginScreen').style.display='none';
+  document.getElementById('loadingScreen').style.display='flex';
+  document.getElementById('hdr').style.display='none';
+  document.getElementById('tsbarWrap').style.display='none';
+  document.getElementById('body').style.display='none';
+}
+function showDashboard(){
+  document.getElementById('loginScreen').style.display='none';
+  document.getElementById('loadingScreen').style.display='none';
+  document.getElementById('hdr').style.display='flex';
+  document.getElementById('tsbarWrap').style.display='block';
+  document.getElementById('body').style.display='flex';
+  document.getElementById('walletLabel').textContent=WALLET.slice(0,10)+'…'+WALLET.slice(-6);
+}
+
+function loginLoad(){
+  const w=document.getElementById('wi').value.trim();
+  if(!w||w.length<10){
+    document.getElementById('loginErr').textContent='Please enter a valid PRL wallet address.';
+    document.getElementById('loginErr').style.display='block';
+    return;
+  }
+  document.getElementById('loginErr').style.display='none';
+  document.getElementById('loginBtn').textContent='Loading…';
+  document.getElementById('loginBtn').disabled=true;
+  WALLET=w;
+  try{localStorage.setItem('prl_wallet',w);}catch(e){}
+  fetchAndRender();
+}
+
+function logout(){
+  try{localStorage.removeItem('prl_wallet');localStorage.removeItem('prl_cache');}catch(e){}
+  WALLET='';current=null;
+  document.getElementById('wi').value='';
+  showLogin();
+}
+
+async function fetchData(wallet){
+  const BASE='https://pearl.herominers.com/api';
+  const [mr,pr]=await Promise.all([
+    fetch(`${BASE}/stats_address?address=${wallet}`,{headers:{'Accept':'application/json'}}),
+    fetch(`${BASE}/stats`,{headers:{'Accept':'application/json'}})
+  ]);
+  if(!mr.ok)throw new Error(`Stats fetch failed: HTTP ${mr.status}`);
+  if(!pr.ok)throw new Error(`Pool fetch failed: HTTP ${pr.status}`);
+  const [m,p]=await Promise.all([mr.json(),pr.json()]);
+  if(!m.stats)throw new Error('Invalid wallet or no mining activity found.');
+  const st=m.stats,pool=p.pool,net=p.network;
+  const raw=m.payments||[];
+  const pays=[];
+  for(let i=0;i<raw.length;i+=2){
+    const pts=raw[i].split(':');
+    pays.push({tx:pts[0],amt:parseInt(pts[1]),height:parseInt(pts[2]),ts:parseInt(raw[i+1])});
+  }
+  return{
+    fetched:Math.floor(Date.now()/1000),wallet,
+    stat:{hr:st.hashrate,hr1h:st.hashrate_1h||0,hr6h:st.hashrate_6h||0,hr24:st.hashrate_24h||0,bal:st.balance,paid:st.paid,p24:st.payments_24h||0,p7d:st.payments_7d||0,good:st.shares_good,inv:st.shares_invalid,stale:st.shares_stale,lastShare:st.lastShare,blocks:parseInt(st.blocksFound||0)},
+    pool:{hr:pool.hashrate,miners:pool.miners,workers:pool.workers,totalBlocks:pool.totalBlocks,effort1d:pool.effort_1d||0,effort7d:pool.effort_7d||0,price_usd:pool.price?.usd||'—',price_btc:pool.price?.btc||'—',height:net.height},
+    workers:(m.workers||[]).map(w=>({name:w.name,hr:w.hashrate,hr1h:w.hashrate_1h||0,hr24h:w.hashrate_24h||0,last:w.lastShare,good:w.shares_good,inv:w.shares_invalid,stale:w.shares_stale,agent:w.agent||'',region:w.region||'',blocks:w.blocksFound||0})),
+    pays,
+    unconf:(m.unconfirmed||[]).map(u=>({height:u.height,region:u.region||'',reward:parseInt(u.reward||0),status:u.status||'pending'})),
+    hrChart:(m.charts?.hashrate||[]).map(p=>[p[0],p[1]])
+  };
+}
+
+async function fetchAndRender(){
+  showLoading();
+  try{
+    const d=await fetchData(WALLET);
+    current=d;
+    try{localStorage.setItem('prl_cache',JSON.stringify(d));}catch(e){}
+    render(d);
+    showDashboard();
+  }catch(e){
+    // try cache
+    try{
+      const c=JSON.parse(localStorage.getItem('prl_cache')||'null');
+      if(c&&c.wallet===WALLET){current=c;render(c);showDashboard();return;}
+    }catch(e2){}
+    showLogin('⚠️ '+e.message);
+  }
+}
+
+async function doRefresh(){
+  if(!WALLET)return;
+  const ic=document.getElementById('ri');
+  ic.classList.add('spin');
+  document.getElementById('tslabel').textContent='Fetching…';
+  try{
+    const d=await fetchData(WALLET);
+    current=d;
+    try{localStorage.setItem('prl_cache',JSON.stringify(d));}catch(e){}
+    render(d);
+  }catch(e){
+    document.getElementById('tslabel').textContent='Failed — showing cached';
+    if(current)render(current);
+  }
+  ic.classList.remove('spin');
+}
+
+function render(d){
+  const st=d.stat,pool=d.pool;
+  const now=new Date(d.fetched*1000).toLocaleTimeString('en-US',{hour:'2-digit',minute:'2-digit'});
+  document.getElementById('tslabel').textContent=now;
+  const online=(Date.now()/1000-st.lastShare)<600;
+  const dot=document.getElementById('dot');
+  dot.style.background=online?'var(--green)':'var(--yellow)';
+  dot.style.boxShadow=online?'0 0 7px var(--green)':'none';
+  document.getElementById('stxt').textContent=online?'Mining active':'Check workers';
+  document.getElementById('priceDisplay').textContent='$'+pool.price_usd+' / '+pool.price_btc+' BTC';
+  const pUSD=parseFloat(pool.price_usd)||0;
+  const hrF=fH(st.hr),hr1F=fH(st.hr1h),hr6F=fH(st.hr6h),hr24F=fH(st.hr24);
+  const age=Math.floor(Date.now()/1000)-d.fetched;
+  let html='';
+  if(age>300)html+=`<div class="stale">⚠️ Data is ${Math.floor(age/60)}m old — tap Refresh</div>`;
+  html+=`<div class="chart-wrap"><div class="chart-top"><span class="chart-t">Hashrate (2h)</span><span class="chart-v">${hrF.v} <span style="font-size:10px;color:var(--muted2)">${hrF.u}</span></span></div><canvas id="hc" height="72" style="width:100%;height:72px"></canvas></div>`;
+  html+=`<div class="slabel">Your Stats</div><div class="g2">
+    <div class="card hi"><div class="cl">Current</div><div class="cv blue">${hrF.v}<span class="cu">${hrF.u}</span></div><div class="cs">1h: ${hr1F.v} ${hr1F.u}</div></div>
+    <div class="card"><div class="cl">24h Average</div><div class="cv">${hr24F.v}<span class="cu">${hr24F.u}</span></div><div class="cs">6h: ${hr6F.v} ${hr6F.u}</div></div>
+    <div class="card"><div class="cl">Unpaid Balance</div><div class="cv green">${fP(st.bal,4)}<span class="cu">PRL</span></div><div class="cs">≈ $${(fP(st.bal,4)*pUSD).toFixed(3)}</div></div>
+    <div class="card"><div class="cl">Total Paid</div><div class="cv">${fP(st.paid,2)}<span class="cu">PRL</span></div><div class="cs">≈ $${(fP(st.paid,2)*pUSD).toFixed(2)}</div></div>
+    <div class="card"><div class="cl">Last 24h</div><div class="cv purple">${fP(st.p24,4)}<span class="cu">PRL</span></div><div class="cs">≈ $${(fP(st.p24,4)*pUSD).toFixed(3)}</div></div>
+    <div class="card"><div class="cl">Last 7d</div><div class="cv purple">${fP(st.p7d,3)}<span class="cu">PRL</span></div><div class="cs">≈ $${(fP(st.p7d,3)*pUSD).toFixed(2)}</div></div>`;
+  const acc=st.good+st.inv>0?((st.good/(st.good+st.inv))*100).toFixed(1):'—';
+  const accCls=parseFloat(acc)>98?'green':parseFloat(acc)>94?'yellow':'red';
+  html+=`<div class="card"><div class="cl">Acceptance</div><div class="cv ${accCls}">${acc}<span class="cu">%</span></div><div class="cs">${st.good.toLocaleString()} good · ${st.inv.toLocaleString()} inv</div></div>
+    <div class="card"><div class="cl">Blocks Found</div><div class="cv ${st.blocks>0?'yellow':''}">${st.blocks}</div><div class="cs">Last share: ${ago(st.lastShare)}</div></div></div>`;
+  const onlineW=d.workers.filter(w=>(Date.now()/1000-w.last)<300).length;
+  html+=`<div class="slabel">Workers (${d.workers.length})</div><div class="scard"><div class="scard-hdr">Rigs <span class="badge">${onlineW}/${d.workers.length} online</span></div>`;
+  d.workers.sort((a,b)=>b.last-a.last).forEach(w=>{
+    const ws=wSt(w.last),whr=fH(w.hr),whr1=fH(w.hr1h);
+    const ag=(w.agent||'').replace('SRBMiner-MULTI/','SRB ').replace('bzminer-v','BZ v');
+    html+=`<div class="wrow"><div class="wdot" style="background:${ws.c};box-shadow:${ws.g}"></div><div style="flex:1;min-width:0"><div class="wname">${esc(w.name)}</div><div class="wagent">${esc(ag)} · ${esc(w.region)}${w.blocks>0?' · <span style="color:var(--yellow)">⛏'+w.blocks+'</span>':''}</div></div><div style="text-align:right"><div class="whr">${whr.v} <span style="font-size:10px;color:var(--muted2)">${whr.u}</span></div><div class="wtime">1h: ${whr1.v} ${whr1.u}</div><div class="wtime">${ago(w.last)}</div></div></div>`;
+  });
+  html+=`</div>`;
+  if(d.unconf&&d.unconf.length){
+    html+=`<div class="slabel">Pending Rewards</div><div class="scard"><div class="scard-hdr">Unconfirmed <span class="badge">${d.unconf.length}</span></div>`;
+    d.unconf.forEach(u=>{html+=`<div class="kv"><span class="kk">#${u.height} · ${esc(u.region)}</span><span class="kv-v green">+${fP(u.reward,4)} PRL</span></div>`;});
+    html+=`</div>`;
+  }
+  if(d.pays&&d.pays.length){
+    html+=`<div class="slabel">Payments</div><div class="scard"><div class="scard-hdr">Recent Payouts</div>`;
+    d.pays.slice(0,8).forEach(p=>{html+=`<div class="prow"><div><div class="pamt">+${fP(p.amt,4)} PRL</div><div class="ptx">${p.tx.slice(0,14)}…</div></div><div class="pmeta">${fD(p.ts)}<br>≈ $${(fP(p.amt,4)*pUSD).toFixed(3)}</div></div>`;});
+    html+=`</div>`;
+  }
+  html+=`<div class="slabel">Pool & Network</div><div class="scard">
+    <div class="kv"><span class="kk">PRL Price</span><span class="kv-v green">$${pool.price_usd} <span style="color:var(--muted2);font-size:10.5px">/ ${pool.price_btc} BTC</span></span></div>
+    <div class="kv"><span class="kk">Pool Hashrate</span><span class="kv-v blue">${fH(pool.hr).v} ${fH(pool.hr).u}</span></div>
+    <div class="kv"><span class="kk">Miners / Workers</span><span class="kv-v">${pool.miners.toLocaleString()} / ${pool.workers.toLocaleString()}</span></div>
+    <div class="kv"><span class="kk">Network Height</span><span class="kv-v">${pool.height.toLocaleString()}</span></div>
+    <div class="kv"><span class="kk">Effort 1d / 7d</span><span class="kv-v ${pool.effort1d>1.1?'yellow':'green'}">${(pool.effort1d*100).toFixed(0)}% / ${(pool.effort7d*100).toFixed(0)}%</span></div>
+    <div class="kv"><span class="kk">Pool Fee</span><span class="kv-v green">0%</span></div>
+  </div><div class="hint">Updated ${now} · tap Refresh for latest</div>`;
+  document.getElementById('body').innerHTML=html;
+  drawChart('hc',d.hrChart.map(p=>p[1]));
+}
+
+function drawChart(id,pts){
+  const c=document.getElementById(id);if(!c||pts.length<2)return;
+  const dpr=window.devicePixelRatio||1,W=c.parentElement.clientWidth-28,H=72;
+  c.width=W*dpr;c.height=H*dpr;c.style.width=W+'px';c.style.height=H+'px';
+  const ctx=c.getContext('2d');ctx.scale(dpr,dpr);
+  const min=Math.min(...pts)*.92,max=Math.max(...pts)*1.05,n=pts.length;
+  const xO=i=>i*(W/(n-1)),yO=v=>H-((v-min)/(max-min))*(H-10)-5;
+  const g=ctx.createLinearGradient(0,0,0,H);g.addColorStop(0,'rgba(59,130,246,.3)');g.addColorStop(1,'rgba(59,130,246,.01)');
+  ctx.beginPath();ctx.moveTo(xO(0),yO(pts[0]));
+  for(let i=1;i<n;i++){const cx=(xO(i-1)+xO(i))/2;ctx.bezierCurveTo(cx,yO(pts[i-1]),cx,yO(pts[i]),xO(i),yO(pts[i]));}
+  ctx.lineTo(xO(n-1),H);ctx.lineTo(0,H);ctx.closePath();ctx.fillStyle=g;ctx.fill();
+  ctx.beginPath();ctx.moveTo(xO(0),yO(pts[0]));
+  for(let i=1;i<n;i++){const cx=(xO(i-1)+xO(i))/2;ctx.bezierCurveTo(cx,yO(pts[i-1]),cx,yO(pts[i]),xO(i),yO(pts[i]));}
+  ctx.strokeStyle='#3b82f6';ctx.lineWidth=1.8;ctx.stroke();
+  ctx.beginPath();ctx.arc(xO(n-1),yO(pts[n-1]),3.5,0,Math.PI*2);ctx.fillStyle='#60a5fa';ctx.fill();
+}
+
+document.getElementById('wi').addEventListener('keydown',e=>{if(e.key==='Enter')loginLoad();});
+
+// Boot
+try{
+  const saved=localStorage.getItem('prl_wallet');
+  if(saved){
+    WALLET=saved;
+    document.getElementById('wi').value=saved;
+    const cached=localStorage.getItem('prl_cache');
+    if(cached){
+      const c=JSON.parse(cached);
+      if(c.wallet===WALLET){
+        current=c;render(c);showDashboard();
+        doRefresh(); // refresh in background
+      }else{fetchAndRender();}
+    }else{fetchAndRender();}
+  }else{showLogin();}
+}catch(e){showLogin();}
+</script>
+</body>
+</html>
