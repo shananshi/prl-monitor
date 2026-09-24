@@ -1,0 +1,581 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="Mining Monitor">
+<meta name="theme-color" content="#080c18">
+<title>Mining Monitor</title>
+<style>
+:root{--bg:#080c18;--s1:#0f1523;--s2:#161e30;--bd:#1c2840;--bd2:#243050;--blue:#3b82f6;--blue2:#60a5fa;--green:#22c55e;--yellow:#eab308;--red:#ef4444;--purple:#a78bfa;--orange:#f97316;--text:#e2e8f0;--muted:#3d5070;--muted2:#6b7fa0;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+*,*::before,*::after{box-sizing:inherit;margin:0;padding:0}
+html{height:100%}
+body{background:var(--bg);color:var(--text);font-family:-apple-system,BlinkMacSystemFont,'SF Pro Text','Helvetica Neue',sans-serif;-webkit-font-smoothing:antialiased;min-height:100%;overscroll-behavior:none}
+.app{max-width:460px;margin:0 auto;min-height:100vh;display:flex;flex-direction:column}
+
+/* Header */
+.hdr{position:sticky;top:env(safe-area-inset-top,0px);background:rgba(8,12,24,.95);backdrop-filter:blur(24px);-webkit-backdrop-filter:blur(24px);border-bottom:1px solid var(--bd);padding:12px 18px 10px;display:flex;align-items:center;justify-content:space-between;z-index:99}
+.hdr-id{display:flex;align-items:center;gap:10px}
+.logo{width:32px;height:32px;border-radius:8px;background:linear-gradient(135deg,#1d4ed8,#7c3aed);display:flex;align-items:center;justify-content:center;font-size:16px;flex-shrink:0}
+.hdr-title{font-size:15px;font-weight:650;letter-spacing:-.2px}
+.hdr-sub{font-size:10px;color:var(--muted2);margin-top:1px}
+.hdr-right{display:flex;align-items:center;gap:7px}
+.btn-icon{background:var(--s2);border:1px solid var(--bd2);color:var(--muted2);border-radius:8px;padding:6px 9px;font-size:14px;cursor:pointer;-webkit-tap-highlight-color:transparent;line-height:1}
+.btn-icon:active{background:var(--bd)}
+.btn-r{display:flex;align-items:center;gap:4px;background:var(--s2);border:1px solid var(--bd2);color:var(--blue2);border-radius:8px;padding:6px 11px;font-size:12px;font-weight:500;cursor:pointer;-webkit-tap-highlight-color:transparent}
+.btn-r:active{background:var(--bd)}
+.spin{animation:spin .9s linear infinite}
+@keyframes spin{to{transform:rotate(360deg)}}
+
+/* Screens */
+.screen{flex:1;display:flex;flex-direction:column}
+
+/* Home screen — coin list */
+.home{flex:1;display:flex;flex-direction:column}
+.home-intro{padding:16px 18px 10px;display:flex;align-items:center;justify-content:space-between}
+.home-title{font-size:13px;font-weight:600;color:var(--text)}
+.home-sub{font-size:11px;color:var(--muted2)}
+.search-wrap{padding:0 18px 10px}
+.search-input{width:100%;background:var(--s1);border:1px solid var(--bd);border-radius:10px;padding:9px 12px 9px 34px;color:var(--text);font-size:13px;outline:none;transition:border-color .15s;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='14' height='14' viewBox='0 0 24 24' fill='none' stroke='%234b6080' stroke-width='2'%3E%3Ccircle cx='11' cy='11' r='8'/%3E%3Cpath d='m21 21-4.35-4.35'/%3E%3C/svg%3E");background-repeat:no-repeat;background-position:10px center}
+.search-input:focus{border-color:var(--blue)}
+.search-input::placeholder{color:var(--muted)}
+.coin-list{flex:1;overflow-y:auto;padding:0 18px 24px;display:flex;flex-direction:column;gap:8px}
+.coin-card{background:var(--s1);border:1px solid var(--bd);border-radius:14px;padding:13px 15px;display:flex;align-items:center;gap:12px;cursor:pointer;-webkit-tap-highlight-color:transparent;transition:border-color .12s}
+.coin-card:active{border-color:var(--bd2);background:var(--s2)}
+.coin-icon{width:38px;height:38px;border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:18px;flex-shrink:0}
+.coin-info{flex:1;min-width:0}
+.coin-name{font-size:13px;font-weight:600}
+.coin-algo{font-size:10.5px;color:var(--muted2);margin-top:2px}
+.coin-right{text-align:right;flex-shrink:0}
+.coin-price{font-size:13px;font-weight:650;color:var(--green)}
+.coin-hr{font-size:10.5px;color:var(--muted2);margin-top:2px}
+.coin-loading{font-size:11px;color:var(--muted);font-style:italic}
+.section-label{font-size:10px;color:var(--muted);text-transform:uppercase;letter-spacing:.7px;padding:8px 1px 4px}
+
+/* Wallet modal */
+.modal-bg{position:fixed;inset:0;background:rgba(0,0,0,.7);z-index:200;display:flex;align-items:flex-end;justify-content:center;backdrop-filter:blur(4px)}
+.modal{background:var(--s1);border:1px solid var(--bd);border-radius:20px 20px 0 0;padding:20px 20px calc(20px + env(safe-area-inset-bottom,0px));width:100%;max-width:460px}
+.modal-handle{width:36px;height:4px;background:var(--bd2);border-radius:2px;margin:0 auto 16px}
+.modal-title{font-size:16px;font-weight:650;margin-bottom:4px}
+.modal-sub{font-size:12px;color:var(--muted2);margin-bottom:16px}
+.modal-label{font-size:11px;color:var(--muted2);text-transform:uppercase;letter-spacing:.6px;margin-bottom:6px}
+.modal-input{width:100%;background:var(--s2);border:1px solid var(--bd2);border-radius:10px;padding:12px 14px;color:var(--text);font-size:13px;font-family:'SF Mono','Menlo',monospace;outline:none;transition:border-color .15s;margin-bottom:12px}
+.modal-input:focus{border-color:var(--blue)}
+.modal-input::placeholder{color:var(--muted);font-size:12px}
+.modal-err{font-size:12px;color:var(--red);margin-bottom:10px;display:none}
+.btn-primary{width:100%;background:var(--blue);color:#fff;border:none;border-radius:10px;padding:13px;font-size:15px;font-weight:600;cursor:pointer;-webkit-tap-highlight-color:transparent}
+.btn-primary:active{filter:brightness(.85)}
+.btn-secondary{width:100%;background:transparent;color:var(--muted2);border:none;padding:10px;font-size:13px;cursor:pointer;margin-top:4px;-webkit-tap-highlight-color:transparent}
+
+/* Dashboard */
+.dash{flex:1;display:flex;flex-direction:column}
+.dash-coin-hdr{display:flex;align-items:center;gap:10px;padding:12px 18px 8px}
+.dash-coin-icon{width:36px;height:36px;border-radius:9px;display:flex;align-items:center;justify-content:center;font-size:20px;flex-shrink:0}
+.dash-coin-name{font-size:15px;font-weight:650}
+.dash-coin-price{font-size:13px;color:var(--green);font-weight:600}
+.dash-coin-algo{font-size:10.5px;color:var(--muted2)}
+.dash-price-big{font-size:22px;font-weight:720;color:var(--green)}
+.price-bar{display:flex;align-items:center;justify-content:space-between;padding:4px 18px 10px;border-bottom:1px solid var(--bd)}
+.price-usd{font-size:20px;font-weight:720;color:var(--green)}
+.price-btc{font-size:11px;color:var(--muted2);margin-top:2px}
+.price-hr{font-size:12px;font-weight:600;color:var(--blue2);text-align:right}
+.price-hr-sub{font-size:10px;color:var(--muted2);margin-top:2px;text-align:right}
+
+.tsbar{display:flex;align-items:center;gap:7px;font-size:11px;color:var(--muted2);padding:8px 18px 0}
+.dot{width:6px;height:6px;border-radius:50%;flex-shrink:0}
+.tsbar-r{margin-left:auto}
+.body{flex:1;padding:10px 18px 32px;display:flex;flex-direction:column;gap:9px}
+.slabel{font-size:10px;color:var(--muted);text-transform:uppercase;letter-spacing:.7px;padding:4px 1px 2px}
+.g2{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.card{background:var(--s1);border:1px solid var(--bd);border-radius:13px;padding:12px 13px}
+.card.hi{border-color:rgba(59,130,246,.35)}
+.cl{font-size:10px;color:var(--muted2);margin-bottom:4px}
+.cv{font-size:20px;font-weight:720;letter-spacing:-.5px;line-height:1}
+.cu{font-size:11px;font-weight:400;color:var(--muted2);margin-left:2px}
+.cs{font-size:10px;color:var(--muted2);margin-top:4px}
+.blue{color:var(--blue2)}.green{color:var(--green)}.yellow{color:var(--yellow)}.purple{color:var(--purple)}.red{color:var(--red)}
+.chart-wrap{background:var(--s1);border:1px solid var(--bd);border-radius:13px;padding:11px 13px 13px}
+.chart-top{display:flex;align-items:center;justify-content:space-between;margin-bottom:9px}
+.chart-t{font-size:12px;font-weight:600}
+.chart-v{font-size:12px;font-weight:600;color:var(--blue2)}
+canvas{display:block}
+.scard{background:var(--s1);border:1px solid var(--bd);border-radius:13px;overflow:hidden}
+.scard-hdr{display:flex;align-items:center;justify-content:space-between;padding:10px 14px;border-bottom:1px solid var(--bd);font-size:12px;font-weight:600}
+.badge{font-size:10px;color:var(--muted2);background:var(--s2);padding:2px 7px;border-radius:20px;border:1px solid var(--bd)}
+.wrow{display:flex;align-items:center;gap:10px;padding:8px 14px;border-bottom:1px solid var(--bd)}
+.wrow:last-child{border-bottom:none}
+.wdot{width:7px;height:7px;border-radius:50%;flex-shrink:0}
+.wname{font-size:12px;font-weight:550;flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.whr{font-size:12px;font-weight:650;color:var(--blue2);white-space:nowrap}
+.wtime{font-size:10px;color:var(--muted2);white-space:nowrap;text-align:right;margin-top:1px}
+.wagent{font-size:9px;color:var(--muted);margin-top:1px}
+.prow{display:flex;align-items:center;justify-content:space-between;padding:9px 14px;border-bottom:1px solid var(--bd)}
+.prow:last-child{border-bottom:none}
+.pamt{font-size:13px;font-weight:650;color:var(--green)}
+.pmeta{text-align:right;font-size:10px;color:var(--muted2);line-height:1.5}
+.ptx{font-size:10px;color:var(--blue2);font-family:'SF Mono','Menlo',monospace;margin-top:1px}
+.kv{display:flex;align-items:center;justify-content:space-between;padding:8px 14px;border-bottom:1px solid var(--bd);font-size:12px}
+.kv:last-child{border-bottom:none}
+.kk{color:var(--muted2)}.kv-v{font-weight:550}
+.stale{background:rgba(234,179,8,.08);border:1px solid rgba(234,179,8,.25);border-radius:11px;padding:9px 13px;font-size:12px;color:var(--yellow);display:flex;align-items:center;gap:8px}
+.hint{text-align:center;font-size:11px;color:var(--muted);padding:6px 0 0}
+.loading{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:14px;color:var(--muted2);font-size:14px}
+.spinner{width:28px;height:28px;border:2px solid var(--bd2);border-top-color:var(--blue);border-radius:50%;animation:spin .8s linear infinite}
+.back-btn{display:flex;align-items:center;gap:6px;font-size:13px;color:var(--blue2);cursor:pointer;-webkit-tap-highlight-color:transparent;padding:0}
+.back-btn:active{opacity:.7}
+</style>
+</head>
+<body>
+<div class="app" id="app">
+
+  <!-- Header -->
+  <div class="hdr">
+    <div class="hdr-id">
+      <div class="logo">⛏️</div>
+      <div>
+        <div class="hdr-title" id="hdrTitle">Mining Monitor</div>
+        <div class="hdr-sub" id="hdrSub">HeroMiners · 17 pools</div>
+      </div>
+    </div>
+    <div class="hdr-right">
+      <div id="hdrBackBtn" style="display:none">
+        <button class="back-btn" onclick="goHome()">← Back</button>
+      </div>
+      <button class="btn-r" id="rb" onclick="doRefresh()"><span id="ri">↻</span> Refresh</button>
+    </div>
+  </div>
+
+  <!-- HOME: Coin list -->
+  <div class="screen home" id="homeScreen">
+    <div class="home-intro">
+      <div>
+        <div class="home-title">Select a Coin</div>
+        <div class="home-sub">Tap to enter wallet &amp; view stats</div>
+      </div>
+    </div>
+    <div class="search-wrap">
+      <input class="search-input" id="searchInput" type="text" placeholder="Search coins…"
+        autocomplete="off" autocorrect="off" autocapitalize="none" spellcheck="false"
+        oninput="filterCoins(this.value)">
+    </div>
+    <div class="coin-list" id="coinList"></div>
+  </div>
+
+  <!-- LOADING -->
+  <div class="screen loading" id="loadingScreen" style="display:none">
+    <div class="spinner"></div>
+    <div id="loadingMsg">Fetching stats…</div>
+  </div>
+
+  <!-- WALLET MODAL -->
+  <div class="modal-bg" id="modalBg" style="display:none" onclick="closeModal(event)">
+    <div class="modal">
+      <div class="modal-handle"></div>
+      <div class="modal-title" id="modalTitle">Enter Wallet</div>
+      <div class="modal-sub" id="modalSub">Paste your wallet address to view mining stats.</div>
+      <div class="modal-label">Wallet Address</div>
+      <input class="modal-input" id="modalInput" type="text" placeholder="Wallet address…"
+        autocomplete="off" autocorrect="off" autocapitalize="none" spellcheck="false">
+      <div class="modal-err" id="modalErr"></div>
+      <button class="btn-primary" onclick="modalLoad()">Load Stats</button>
+      <button class="btn-secondary" onclick="hideModal()">Cancel</button>
+    </div>
+  </div>
+
+  <!-- DASHBOARD -->
+  <div class="screen dash" id="dashScreen" style="display:none">
+    <div class="price-bar" id="priceBar"></div>
+    <div class="tsbar">
+      <div class="dot" id="dot"></div>
+      <span id="stxt"></span>
+      <span class="tsbar-r" id="tslabel"></span>
+    </div>
+    <div class="body" id="body"></div>
+  </div>
+
+</div>
+
+<script>
+// ── Coin definitions ──
+const COINS = [
+  {id:'pearl',    sym:'PRL',  name:'Pearl',          algo:'PearlHash',    icon:'https://coin-images.coingecko.com/coins/images/102173580/small/pearl.png?1780324634',           scale:4294967296, units:1e8},
+  {id:'kaspa',    sym:'KAS',  name:'Kaspa',          algo:'kHeavyHash',   icon:'https://coin-images.coingecko.com/coins/images/25751/small/kaspa-icon-exchanges.png?1696524837', scale:1,          units:1e8},
+  {id:'xelis',    sym:'XEL',  name:'Xelis',          algo:'XelisHashV3',  icon:'https://coin-images.coingecko.com/coins/images/37615/small/green_background_black_logo.png?1715061546', scale:1, units:1e8},
+  {id:'ergo',     sym:'ERG',  name:'Ergo',           algo:'Autolykos v2', icon:'https://coin-images.coingecko.com/coins/images/2484/small/channels4_profile.jpg?1726043738',    scale:1,          units:1e9},
+  {id:'ironfish', sym:'IRON', name:'Iron Fish',      algo:'FishHash',     icon:'https://coin-images.coingecko.com/coins/images/29982/small/kxDDjheA_400x400.jpg',               scale:1,          units:1e8},
+  {id:'monero',   sym:'XMR',  name:'Monero',         algo:'RandomX',      icon:'https://coin-images.coingecko.com/coins/images/69/small/monero_logo.png?1696501460',            scale:1,          units:1e12},
+  {id:'ravencoin',sym:'RVN',  name:'Ravencoin',      algo:'KawPow',       icon:'https://coin-images.coingecko.com/coins/images/3412/small/ravencoin.png',                        scale:1,          units:1e8},
+  {id:'alephium', sym:'ALPH', name:'Alephium',       algo:'Blake3',       icon:'https://coin-images.coingecko.com/coins/images/21598/small/Alephium-Logo-round.png?1750765372', scale:1,          units:1e18},
+  {id:'warthog',  sym:'WART', name:'Warthog',        algo:'JanusHash',    icon:'https://coin-images.coingecko.com/coins/images/36169/small/logo.png?1710746796',                scale:1,          units:1e8},
+  {id:'zano',     sym:'ZANO', name:'Zano',           algo:'ProgPowZ',     icon:'https://coin-images.coingecko.com/coins/images/8370/small/Icon-App-512x512.png?1761825305',     scale:1,          units:1e12},
+  {id:'conflux',  sym:'CFX',  name:'Conflux',        algo:'Octopus',      icon:'https://coin-images.coingecko.com/coins/images/13079/small/3vuYMbjN.png?1696512867',            scale:1,          units:1e18},
+  {id:'etc',      sym:'ETC',  name:'Ethereum Classic',algo:'EtcHash',     icon:'https://coin-images.coingecko.com/coins/images/453/small/ethereum-classic-logo.png?1696501717', scale:1,          units:1e18},
+  {id:'zephyr',   sym:'ZEPH', name:'Zephyr Protocol',algo:'RandomX',      icon:'https://coin-images.coingecko.com/coins/images/30865/small/ZephyrLogo200x200.png?1696529712',  scale:1,          units:1e12},
+  {id:'salvium',  sym:'SAL',  name:'Salvium',        algo:'RandomX',      icon:'https://coin-images.coingecko.com/coins/images/39445/small/salvium-logo.jpg?1722464279',        scale:1,          units:1e12},
+  {id:'qrl',      sym:'QRL',  name:'Quantum Ledger', algo:'RandomX',      icon:'https://coin-images.coingecko.com/coins/images/700/small/qrl-logo.png?1763796842',              scale:1,          units:1e9},
+  {id:'quai',     sym:'QUAI', name:'Quai Network',   algo:'KawPow',       icon:'https://coin-images.coingecko.com/coins/images/27928/small/QuaiLogoFinal.png?1696526947',       scale:1,          units:1e18},
+  {id:'beam',     sym:'BEAM', name:'Beam',           algo:'BeamHashIII',  icon:'https://coin-images.coingecko.com/coins/images/32417/small/cgicon.png?1747892021',              scale:1,          units:1e8},
+];
+
+let poolData = {};    // live pool stats per coin
+let currentCoin = null;
+let currentWallet = null;
+let dashData = null;
+let refreshTimer = null;
+
+// ── Helpers ──
+function fH(h, scale=1){
+  if(!h||isNaN(h))return{v:'0',u:'H/s'};
+  h = h * scale;
+  if(h>=1e18)return{v:(h/1e18).toFixed(2),u:'EH/s'};
+  if(h>=1e15)return{v:(h/1e15).toFixed(2),u:'PH/s'};
+  if(h>=1e12)return{v:(h/1e12).toFixed(2),u:'TH/s'};
+  if(h>=1e9)return{v:(h/1e9).toFixed(2),u:'GH/s'};
+  if(h>=1e6)return{v:(h/1e6).toFixed(2),u:'MH/s'};
+  if(h>=1e3)return{v:(h/1e3).toFixed(2),u:'KH/s'};
+  return{v:h.toFixed(0),u:'H/s'};
+}
+function fP(n, units, d=4){if(n==null||isNaN(n))return'—';return(n/units).toFixed(d);}
+function ago(ts){const s=Math.floor(Date.now()/1000)-ts;if(s<60)return s+'s ago';if(s<3600)return Math.floor(s/60)+'m ago';if(s<86400)return Math.floor(s/3600)+'h ago';return Math.floor(s/86400)+'d ago';}
+function fD(ts){if(!ts)return'—';return new Date(ts*1000).toLocaleString('en-US',{month:'short',day:'numeric',hour:'2-digit',minute:'2-digit'});}
+function wSt(ts){const s=Date.now()/1000-(ts||0);if(s<300)return{c:'var(--green)',g:'0 0 6px var(--green)'};if(s<1800)return{c:'var(--yellow)',g:'none'};return{c:'var(--red)',g:'none'};}
+function esc(s){return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;');}
+function fmtPrice(p){if(!p||p==='—')return'—';const n=parseFloat(p);if(n>=1000)return'$'+n.toFixed(0);if(n>=1)return'$'+n.toFixed(2);if(n>=0.01)return'$'+n.toFixed(4);return'$'+n.toFixed(6);}
+
+// ── Screens ──
+function showHome(){
+  document.getElementById('homeScreen').style.display='flex';
+  document.getElementById('loadingScreen').style.display='none';
+  document.getElementById('dashScreen').style.display='none';
+  document.getElementById('hdrTitle').textContent='Mining Monitor';
+  document.getElementById('hdrSub').textContent='HeroMiners · 17 pools';
+  document.getElementById('hdrBackBtn').style.display='none';
+  clearTimeout(refreshTimer);
+}
+function showLoading(msg='Fetching stats…'){
+  document.getElementById('homeScreen').style.display='none';
+  document.getElementById('loadingScreen').style.display='flex';
+  document.getElementById('dashScreen').style.display='none';
+  document.getElementById('loadingMsg').textContent=msg;
+}
+function showDash(){
+  document.getElementById('homeScreen').style.display='none';
+  document.getElementById('loadingScreen').style.display='none';
+  document.getElementById('dashScreen').style.display='flex';
+  document.getElementById('hdrTitle').innerHTML=`<img src="${currentCoin.icon}" width="18" height="18" style="border-radius:4px;vertical-align:middle;margin-right:5px">${currentCoin.name}`;
+  document.getElementById('hdrSub').textContent=currentCoin.sym+' · '+currentCoin.algo;
+  document.getElementById('hdrBackBtn').style.display='block';
+}
+function goHome(){
+  currentCoin=null; currentWallet=null; dashData=null;
+  clearTimeout(refreshTimer);
+  showHome();
+}
+
+// ── Modal ──
+function showModal(coin){
+  currentCoin = coin;
+  document.getElementById('modalTitle').innerHTML = `<img src="${coin.icon}" width="22" height="22" style="border-radius:5px;vertical-align:middle;margin-right:6px"> ${coin.name} Wallet`;
+  document.getElementById('modalSub').textContent = 'Enter your '+coin.sym+' wallet address.';
+  document.getElementById('modalErr').style.display='none';
+  // pre-fill saved wallet for this coin
+  try{
+    const saved = localStorage.getItem('wallet_'+coin.id);
+    document.getElementById('modalInput').value = saved||'';
+  }catch(e){ document.getElementById('modalInput').value=''; }
+  document.getElementById('modalBg').style.display='flex';
+  setTimeout(()=>document.getElementById('modalInput').focus(),100);
+}
+function hideModal(){
+  document.getElementById('modalBg').style.display='none';
+  currentCoin=null;
+}
+function closeModal(e){if(e.target===document.getElementById('modalBg'))hideModal();}
+function modalLoad(){
+  const w = document.getElementById('modalInput').value.trim();
+  if(!w||w.length<10){
+    document.getElementById('modalErr').textContent='Please enter a valid wallet address.';
+    document.getElementById('modalErr').style.display='block';
+    return;
+  }
+  document.getElementById('modalErr').style.display='none';
+  document.getElementById('modalBg').style.display='none';
+  currentWallet = w;
+  try{localStorage.setItem('wallet_'+currentCoin.id, w);}catch(e){}
+  fetchAndRenderDash(currentCoin, w);
+}
+document.getElementById('modalInput').addEventListener('keydown',e=>{if(e.key==='Enter')modalLoad();});
+
+// ── Fetch pool overview (home screen) ──
+async function loadPoolStats(){
+  const list = document.getElementById('coinList');
+  // Render skeleton cards first
+  renderCoinList(COINS, {});
+  // Fetch all in parallel
+  const results = await Promise.allSettled(
+    COINS.map(async coin => {
+      const r = await fetch(`https://${coin.id}.herominers.com/api/stats`,{headers:{'Accept':'application/json'}});
+      if(!r.ok) throw new Error(r.status);
+      const d = await r.json();
+      const pool = d.pool||{};
+      const price = pool.price||{};
+      return {
+        id: coin.id,
+        price_usd: price.usd||'—',
+        price_btc: price.btc||'—',
+        hashrate: pool.hashrate||0,
+        miners: pool.miners||0,
+        workers: pool.workers||0,
+      };
+    })
+  );
+  results.forEach((r,i)=>{
+    if(r.status==='fulfilled') poolData[COINS[i].id] = r.value;
+  });
+  renderCoinList(COINS, poolData);
+}
+
+function renderCoinList(coins, data){
+  const list = document.getElementById('coinList');
+  // Starred coins (have saved wallet) first
+  const starred = coins.filter(c=>{ try{return !!localStorage.getItem('wallet_'+c.id);}catch(e){return false;} });
+  const rest = coins.filter(c=>!starred.includes(c));
+
+  let html = '';
+  if(starred.length){
+    html += `<div class="section-label">Your Coins</div>`;
+    starred.forEach(c=>{ html += coinCardHTML(c, data[c.id]); });
+    html += `<div class="section-label">All Pools</div>`;
+  }
+  rest.forEach(c=>{ html += coinCardHTML(c, data[c.id]); });
+  list.innerHTML = html;
+}
+
+function coinCardHTML(coin, d){
+  const hr = d ? fH(d.hashrate, coin.scale) : null;
+  const imgEl = `<img src="${coin.icon}" width="38" height="38" style="border-radius:10px;object-fit:cover;display:block" onerror="this.style.display='none';this.nextSibling.style.display='flex'" alt="${coin.sym}"><span class="coin-icon-fb" style="display:none;width:38px;height:38px;border-radius:10px;background:${coinBg(coin.id)};align-items:center;justify-content:center;font-size:16px;font-weight:700;color:#fff;flex-shrink:0">${coin.sym.slice(0,2)}</span>`;
+  return `<div class="coin-card" onclick="onCoinTap('${coin.id}')">
+    <div style="flex-shrink:0;position:relative">${imgEl}</div>
+    <div class="coin-info">
+      <div class="coin-name">${coin.name} <span style="font-size:10px;color:var(--muted2);font-weight:400">${coin.sym}</span></div>
+      <div class="coin-algo">${coin.algo} · ${d ? (d.miners||0).toLocaleString()+' miners' : '…'}</div>
+    </div>
+    <div class="coin-right">
+      <div class="coin-price">${d ? fmtPrice(d.price_usd) : '<span class="coin-loading">loading</span>'}</div>
+      <div class="coin-hr">${hr ? hr.v+' '+hr.u : '…'}</div>
+    </div>
+  </div>`;
+}
+
+function coinBg(id){
+  const map={pearl:'linear-gradient(135deg,#1d4ed8,#7c3aed)',kaspa:'linear-gradient(135deg,#0ea5e9,#2563eb)',xelis:'linear-gradient(135deg,#7c3aed,#a855f7)',ergo:'linear-gradient(135deg,#f97316,#ef4444)',ironfish:'linear-gradient(135deg,#6b7280,#374151)',monero:'linear-gradient(135deg,#f59e0b,#d97706)',ravencoin:'linear-gradient(135deg,#3b82f6,#1d4ed8)',alephium:'linear-gradient(135deg,#ef4444,#dc2626)',warthog:'linear-gradient(135deg,#84cc16,#65a30d)',zano:'linear-gradient(135deg,#3b82f6,#0ea5e9)',conflux:'linear-gradient(135deg,#10b981,#059669)',etc:'linear-gradient(135deg,#22c55e,#16a34a)',zephyr:'linear-gradient(135deg,#6366f1,#4f46e5)',salvium:'linear-gradient(135deg,#ec4899,#db2777)',qrl:'linear-gradient(135deg,#14b8a6,#0d9488)',quai:'linear-gradient(135deg,#f97316,#ea580c)',beam:'linear-gradient(135deg,#eab308,#ca8a04)'};
+  return map[id]||'linear-gradient(135deg,#374151,#1f2937)';
+}
+
+function filterCoins(q){
+  const filtered = q ? COINS.filter(c=>c.name.toLowerCase().includes(q.toLowerCase())||c.sym.toLowerCase().includes(q.toLowerCase())||c.algo.toLowerCase().includes(q.toLowerCase())) : COINS;
+  renderCoinList(filtered, poolData);
+}
+
+function onCoinTap(id){
+  const coin = COINS.find(c=>c.id===id);
+  if(!coin) return;
+  // Check if we have a saved wallet
+  try{
+    const saved = localStorage.getItem('wallet_'+id);
+    if(saved){ currentCoin=coin; currentWallet=saved; fetchAndRenderDash(coin,saved); return; }
+  }catch(e){}
+  showModal(coin);
+}
+
+// ── Fetch miner dashboard ──
+async function fetchAndRenderDash(coin, wallet){
+  showLoading(`Fetching ${coin.sym} stats…`);
+  try{
+    const [mr,pr] = await Promise.all([
+      fetch(`https://${coin.id}.herominers.com/api/stats_address?address=${wallet}`,{headers:{'Accept':'application/json'}}),
+      fetch(`https://${coin.id}.herominers.com/api/stats`,{headers:{'Accept':'application/json'}})
+    ]);
+    if(!mr.ok) throw new Error(`HTTP ${mr.status}`);
+    const [m,p] = await Promise.all([mr.json(),pr.json()]);
+    if(!m.stats) throw new Error('No mining activity found for this wallet.');
+    const st=m.stats, pool=p.pool||{}, net=p.network||{};
+    const raw=m.payments||[];
+    const pays=[];
+    for(let i=0;i<raw.length;i+=2){
+      const pts=raw[i].split(':');
+      pays.push({tx:pts[0],amt:parseInt(pts[1]||0),height:parseInt(pts[2]||0),ts:parseInt(raw[i+1]||0)});
+    }
+    dashData = {
+      fetched:Math.floor(Date.now()/1000), coin, wallet,
+      stat:{hr:st.hashrate,hr1h:st.hashrate_1h||0,hr6h:st.hashrate_6h||0,hr24:st.hashrate_24h||0,bal:st.balance,paid:st.paid,p24:st.payments_24h||0,p7d:st.payments_7d||0,good:st.shares_good,inv:st.shares_invalid,stale:st.shares_stale,lastShare:st.lastShare,blocks:parseInt(st.blocksFound||0)},
+      pool:{hr:pool.hashrate,miners:pool.miners,workers:pool.workers,totalBlocks:pool.totalBlocks,effort1d:pool.effort_1d||0,effort7d:pool.effort_7d||0,price_usd:pool.price?.usd||'—',price_btc:pool.price?.btc||'—',height:net.height,realHashrate:pool.realHashrate||0,avgReward:pool.averageReward||0,avgDailyPool:Array.isArray(pool.daily_earnings)?pool.daily_earnings.reduce((a,b)=>a+parseInt(b),0)/pool.daily_earnings.length:0,blockTime:net.difficultyTarget||194},
+      workers:(m.workers||[]).map(w=>({name:w.name,hr:w.hashrate,hr1h:w.hashrate_1h||0,last:w.lastShare,good:w.shares_good,inv:w.shares_invalid,agent:w.agent||'',region:w.region||'',blocks:w.blocksFound||0})),
+      pays,
+      unconf:(m.unconfirmed||[]).map(u=>({height:u.height,region:u.region||'',reward:parseInt(u.reward||0)})),
+      hrChart:(m.charts?.hashrate||[]).map(pt=>[pt[0],pt[1]])
+    };
+    renderDash(dashData);
+    showDash();
+    clearTimeout(refreshTimer);
+    refreshTimer = setTimeout(()=>doRefresh(), 120000);
+  }catch(e){
+    showHome();
+    alert('⚠️ '+e.message);
+  }
+}
+
+async function doRefresh(){
+  if(currentCoin && currentWallet){
+    const ic=document.getElementById('ri');
+    ic.classList.add('spin');
+    document.getElementById('tslabel').textContent='Fetching…';
+    try{
+      await fetchAndRenderDash(currentCoin, currentWallet);
+      showDash();
+    }catch(e){}
+    ic.classList.remove('spin');
+  } else {
+    // refresh home pool stats
+    const ic=document.getElementById('ri');
+    ic.classList.add('spin');
+    await loadPoolStats();
+    ic.classList.remove('spin');
+  }
+}
+
+// ── Render dashboard ──
+function renderDash(d){
+  const coin=d.coin, st=d.stat, pool=d.pool;
+  const scale = coin.scale;
+  const units = coin.units;
+  const now=new Date(d.fetched*1000).toLocaleTimeString('en-US',{hour:'2-digit',minute:'2-digit'});
+  document.getElementById('tslabel').textContent=now;
+  const online=(Date.now()/1000-st.lastShare)<600;
+  const dot=document.getElementById('dot');
+  dot.style.background=online?'var(--green)':'var(--yellow)';
+  dot.style.boxShadow=online?'0 0 6px var(--green)':'none';
+  document.getElementById('stxt').textContent=online?'Mining active':'Check workers';
+  const pUSD=parseFloat(pool.price_usd)||0;
+
+  // Price bar
+  const hrF=fH(st.hr,scale);
+  document.getElementById('priceBar').innerHTML=`
+    <div>
+      <div class="price-usd">${fmtPrice(pool.price_usd)}</div>
+      <div class="price-btc">${pool.price_btc} BTC</div>
+    </div>
+    <div>
+      <div class="price-hr blue">${hrF.v} ${hrF.u}</div>
+      <div class="price-hr-sub">Your hashrate</div>
+    </div>`;
+
+  const hr1F=fH(st.hr1h,scale), hr6F=fH(st.hr6h,scale), hr24F=fH(st.hr24,scale);
+  const age=Math.floor(Date.now()/1000)-d.fetched;
+  let html='';
+  if(age>300) html+=`<div class="stale">⚠️ Data is ${Math.floor(age/60)}m old — tap Refresh</div>`;
+
+  // Chart
+  html+=`<div class="chart-wrap"><div class="chart-top"><span class="chart-t">Hashrate (2h)</span><span class="chart-v">${hrF.v} <span style="font-size:10px;color:var(--muted2)">${hrF.u}</span></span></div><canvas id="hc" height="68" style="width:100%;height:68px"></canvas></div>`;
+
+  // Stats grid
+  html+=`<div class="slabel">Your Stats</div><div class="g2">
+    <div class="card hi"><div class="cl">Current</div><div class="cv blue">${hrF.v}<span class="cu">${hrF.u}</span></div><div class="cs">1h: ${hr1F.v} ${hr1F.u}</div></div>
+    <div class="card"><div class="cl">24h Average</div><div class="cv">${hr24F.v}<span class="cu">${hr24F.u}</span></div><div class="cs">6h: ${hr6F.v} ${hr6F.u}</div></div>
+    <div class="card"><div class="cl">Unpaid Balance</div><div class="cv green">${fP(st.bal,units,4)}<span class="cu">${coin.sym}</span></div><div class="cs">≈ $${(parseFloat(fP(st.bal,units,4))*pUSD).toFixed(3)}</div></div>
+    <div class="card"><div class="cl">Total Paid</div><div class="cv">${fP(st.paid,units,2)}<span class="cu">${coin.sym}</span></div><div class="cs">≈ $${(parseFloat(fP(st.paid,units,2))*pUSD).toFixed(2)}</div></div>
+    <div class="card"><div class="cl">Last 24h Earned</div><div class="cv purple">${fP(st.p24,units,4)}<span class="cu">${coin.sym}</span></div><div class="cs">≈ $${(parseFloat(fP(st.p24,units,4))*pUSD).toFixed(3)}</div></div>
+    <div class="card"><div class="cl">Last 7d Earned</div><div class="cv purple">${fP(st.p7d,units,3)}<span class="cu">${coin.sym}</span></div><div class="cs">≈ $${(parseFloat(fP(st.p7d,units,3))*pUSD).toFixed(2)}</div></div>`;
+  // Estimated daily — same method as HeroMiners (pool share × avg daily pool payout)
+  const poolRealHr = pool.realHashrate || 0;
+  const myRealHr = st.hr * coin.scale;
+  const avgDailyPool = pool.avgDailyPool || 0;
+  let estDay = 0;
+  if (poolRealHr > 0 && avgDailyPool > 0) {
+    estDay = (myRealHr / poolRealHr) * (avgDailyPool / coin.units);
+  } else if (pool.avgReward > 0 && poolRealHr > 0) {
+    const bpd = 86400 / (pool.blockTime || 194);
+    estDay = (myRealHr / poolRealHr) * bpd * (pool.avgReward / coin.units);
+  }
+  const estUSD = (estDay * pUSD).toFixed(2);
+  const estMonth = (estDay * 30 * pUSD).toFixed(0);
+  html += `<div class="card" style="border-color:rgba(34,197,94,.25);grid-column:1/-1">
+    <div class="cl">Estimated Daily Earnings</div>
+    <div style="display:flex;align-items:baseline;gap:8px;flex-wrap:wrap">
+      <div class="cv green">${estDay.toFixed(4)}<span class="cu">${coin.sym}</span></div>
+      <div style="font-size:15px;font-weight:600;color:var(--green)">≈ $${estUSD}</div>
+    </div>
+    <div class="cs">~$${estMonth}/mo · pool share method (matches HeroMiners)</div>
+  </div>`;
+  const acc=st.good+st.inv>0?((st.good/(st.good+st.inv))*100).toFixed(1):'—';
+  const accCls=parseFloat(acc)>98?'green':parseFloat(acc)>94?'yellow':'red';
+  html+=`<div class="card"><div class="cl">Acceptance</div><div class="cv ${accCls}">${acc}<span class="cu">%</span></div><div class="cs">${st.good.toLocaleString()} good · ${st.inv.toLocaleString()} inv</div></div>
+    <div class="card"><div class="cl">Blocks Found</div><div class="cv ${st.blocks>0?'yellow':''}">${st.blocks}</div><div class="cs">Last share: ${ago(st.lastShare)}</div></div></div>`;
+
+  // Workers
+  if(d.workers.length){
+    const onlineW=d.workers.filter(w=>(Date.now()/1000-w.last)<300).length;
+    html+=`<div class="slabel">Workers (${d.workers.length})</div><div class="scard"><div class="scard-hdr">Rigs <span class="badge">${onlineW}/${d.workers.length} online</span></div>`;
+    d.workers.sort((a,b)=>b.last-a.last).forEach(w=>{
+      const ws=wSt(w.last),whr=fH(w.hr,scale),whr1=fH(w.hr1h,scale);
+      const ag=(w.agent||'').replace('SRBMiner-MULTI/','SRB ').replace('bzminer-v','BZ v').replace('XMRig/','XMRig ');
+      html+=`<div class="wrow"><div class="wdot" style="background:${ws.c};box-shadow:${ws.g}"></div><div style="flex:1;min-width:0"><div class="wname">${esc(w.name)}</div><div class="wagent">${esc(ag)} · ${esc(w.region)}${w.blocks>0?' · <span style="color:var(--yellow)">⛏'+w.blocks+'</span>':''}</div></div><div style="text-align:right"><div class="whr">${whr.v} <span style="font-size:9px;color:var(--muted2)">${whr.u}</span></div><div class="wtime">1h: ${whr1.v} ${whr1.u}</div><div class="wtime">${ago(w.last)}</div></div></div>`;
+    });
+    html+=`</div>`;
+  }
+
+  // Pending
+  if(d.unconf&&d.unconf.length){
+    html+=`<div class="slabel">Pending Rewards</div><div class="scard"><div class="scard-hdr">Unconfirmed <span class="badge">${d.unconf.length}</span></div>`;
+    d.unconf.forEach(u=>{html+=`<div class="kv"><span class="kk">#${u.height} · ${esc(u.region)}</span><span class="kv-v green">+${fP(u.reward,units,4)} ${coin.sym}</span></div>`;});
+    html+=`</div>`;
+  }
+
+  // Payments
+  if(d.pays&&d.pays.length){
+    html+=`<div class="slabel">Payments</div><div class="scard"><div class="scard-hdr">Recent Payouts</div>`;
+    d.pays.slice(0,8).forEach(p=>{html+=`<div class="prow"><div><div class="pamt">+${fP(p.amt,units,4)} ${coin.sym}</div><div class="ptx">${p.tx.slice(0,14)}…</div></div><div class="pmeta">${fD(p.ts)}<br>≈ $${(parseFloat(fP(p.amt,units,4))*pUSD).toFixed(3)}</div></div>`;});
+    html+=`</div>`;
+  }
+
+  // Pool stats
+  const phr=fH(pool.hr,scale);
+  html+=`<div class="slabel">Pool & Network</div><div class="scard">
+    <div class="kv"><span class="kk"><img src="${coin.icon}" width="16" height="16" style="border-radius:3px;vertical-align:middle;margin-right:4px">${coin.sym} Price</span><span class="kv-v green">${fmtPrice(pool.price_usd)} <span style="color:var(--muted2);font-size:10px">/ ${pool.price_btc} BTC</span></span></div>
+    <div class="kv"><span class="kk">Pool Hashrate</span><span class="kv-v blue">${phr.v} ${phr.u}</span></div>
+    <div class="kv"><span class="kk">Miners / Workers</span><span class="kv-v">${(pool.miners||0).toLocaleString()} / ${(pool.workers||0).toLocaleString()}</span></div>
+    <div class="kv"><span class="kk">Network Height</span><span class="kv-v">${(pool.height||0).toLocaleString()}</span></div>
+    <div class="kv"><span class="kk">Effort 1d / 7d</span><span class="kv-v ${pool.effort1d>1.1?'yellow':'green'}">${(pool.effort1d*100).toFixed(0)}% / ${(pool.effort7d*100).toFixed(0)}%</span></div>
+    <div class="kv"><span class="kk">Pool Fee</span><span class="kv-v green">0%</span></div>
+  </div><div class="hint">Updated ${now} · tap Refresh for latest</div>`;
+
+  document.getElementById('body').innerHTML=html;
+  drawChart('hc', d.hrChart.map(pt=>pt[1]), scale);
+}
+
+function drawChart(id,pts,scale=1){
+  const c=document.getElementById(id);if(!c||pts.length<2)return;
+  const dpr=window.devicePixelRatio||1,W=c.parentElement.clientWidth-26,H=68;
+  c.width=W*dpr;c.height=H*dpr;c.style.width=W+'px';c.style.height=H+'px';
+  const ctx=c.getContext('2d');ctx.scale(dpr,dpr);
+  const scaled=pts.map(v=>v*scale);
+  const min=Math.min(...scaled)*.92,max=Math.max(...scaled)*1.05,n=scaled.length;
+  const xO=i=>i*(W/(n-1)),yO=v=>H-((v-min)/(max-min))*(H-8)-4;
+  const g=ctx.createLinearGradient(0,0,0,H);g.addColorStop(0,'rgba(59,130,246,.28)');g.addColorStop(1,'rgba(59,130,246,.01)');
+  ctx.beginPath();ctx.moveTo(xO(0),yO(scaled[0]));
+  for(let i=1;i<n;i++){const cx=(xO(i-1)+xO(i))/2;ctx.bezierCurveTo(cx,yO(scaled[i-1]),cx,yO(scaled[i]),xO(i),yO(scaled[i]));}
+  ctx.lineTo(xO(n-1),H);ctx.lineTo(0,H);ctx.closePath();ctx.fillStyle=g;ctx.fill();
+  ctx.beginPath();ctx.moveTo(xO(0),yO(scaled[0]));
+  for(let i=1;i<n;i++){const cx=(xO(i-1)+xO(i))/2;ctx.bezierCurveTo(cx,yO(scaled[i-1]),cx,yO(scaled[i]),xO(i),yO(scaled[i]));}
+  ctx.strokeStyle='#3b82f6';ctx.lineWidth=1.8;ctx.stroke();
+  ctx.beginPath();ctx.arc(xO(n-1),yO(scaled[n-1]),3,0,Math.PI*2);ctx.fillStyle='#60a5fa';ctx.fill();
+}
+
+// ── Boot ──
+showHome();
+loadPoolStats();
+</script>
+</body>
+</html>
