@@ -1,0 +1,660 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="QTC Monitor">
+<meta name="theme-color" content="#080c18">
+<title>LuckyPool QTC Monitor</title>
+<style>
+:root{
+  --bg:#080c18;--s1:#0f1523;--s2:#161e30;--bd:#1c2840;--bd2:#243050;
+  --blue:#3b82f6;--blue2:#60a5fa;--green:#22c55e;--yellow:#eab308;
+  --red:#ef4444;--purple:#a78bfa;--text:#e2e8f0;--muted:#3d5070;--muted2:#6b7fa0;
+  --lucky:#009DFC;--lucky2:#33b5fd;
+  box-sizing:border-box;
+  padding-top:env(safe-area-inset-top,0px);
+  padding-bottom:env(safe-area-inset-bottom,0px);
+}
+*,*::before,*::after{box-sizing:inherit;margin:0;padding:0}
+html{height:100%}
+body{background:var(--bg);color:var(--text);font-family:-apple-system,BlinkMacSystemFont,'SF Pro Text','Helvetica Neue',sans-serif;-webkit-font-smoothing:antialiased;min-height:100%;overscroll-behavior:none}
+.app{max-width:460px;margin:0 auto;min-height:100vh;display:flex;flex-direction:column}
+
+/* Header */
+.hdr{position:sticky;top:env(safe-area-inset-top,0px);background:rgba(8,12,24,.95);backdrop-filter:blur(24px);-webkit-backdrop-filter:blur(24px);border-bottom:1px solid var(--bd);padding:13px 18px 11px;display:flex;align-items:center;justify-content:space-between;z-index:99}
+.hdr-id{display:flex;align-items:center;gap:10px}
+.logo{width:34px;height:34px;border-radius:9px;background:linear-gradient(135deg,#009DFC,#0066cc);display:flex;align-items:center;justify-content:center;font-weight:800;font-size:12px;color:#fff;flex-shrink:0}
+.hdr-title{font-size:16px;font-weight:650;letter-spacing:-.2px}
+.hdr-sub{font-size:11px;color:var(--muted2);margin-top:1px}
+.hdr-right{display:flex;align-items:center;gap:7px}
+.btn-sm{background:var(--s2);border:1px solid var(--bd2);color:var(--muted2);border-radius:8px;padding:6px 9px;font-size:13px;cursor:pointer;-webkit-tap-highlight-color:transparent}
+.btn-sm:active{background:var(--bd)}
+.btn-r{display:flex;align-items:center;gap:4px;background:var(--s2);border:1px solid var(--bd2);color:var(--lucky2);border-radius:8px;padding:6px 11px;font-size:12px;font-weight:500;cursor:pointer;-webkit-tap-highlight-color:transparent}
+.btn-r:active{background:var(--bd)}
+.spin{animation:spin .9s linear infinite}
+@keyframes spin{to{transform:rotate(360deg)}}
+
+/* Countdown */
+.tsbar{display:flex;align-items:center;gap:7px;font-size:11px;color:var(--muted2);padding:8px 18px 0}
+.dot{width:6px;height:6px;border-radius:50%;flex-shrink:0}
+.tsbar-r{margin-left:auto}
+
+/* Screens */
+.login{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:32px 24px}
+.login-logo{width:72px;height:72px;border-radius:20px;background:linear-gradient(135deg,#009DFC,#0066cc);display:flex;align-items:center;justify-content:center;font-size:32px;margin-bottom:24px}
+.login-title{font-size:24px;font-weight:700;letter-spacing:-.5px;margin-bottom:8px}
+.login-sub{font-size:14px;color:var(--muted2);text-align:center;line-height:1.5;margin-bottom:32px}
+.login-box{width:100%;background:var(--s1);border:1px solid var(--bd);border-radius:16px;padding:20px;display:flex;flex-direction:column;gap:12px}
+.login-label{font-size:11px;color:var(--muted2);text-transform:uppercase;letter-spacing:.6px}
+.login-input{width:100%;background:var(--s2);border:1px solid var(--bd2);border-radius:10px;padding:12px 14px;color:var(--text);font-size:13px;font-family:'SF Mono','Menlo',monospace;outline:none;transition:border-color .15s}
+.login-input:focus{border-color:var(--lucky)}
+.login-input::placeholder{color:var(--muted);font-size:12px}
+.btn-login{width:100%;background:var(--lucky);color:#fff;border:none;border-radius:10px;padding:13px;font-size:15px;font-weight:600;cursor:pointer;-webkit-tap-highlight-color:transparent}
+.btn-login:active{filter:brightness(.85)}
+.login-err{font-size:12px;color:var(--red);text-align:center;display:none;line-height:1.5}
+.login-hint{font-size:11px;color:var(--muted);text-align:center;margin-top:12px}
+
+.loading{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:14px;color:var(--muted2);font-size:14px}
+.spinner{width:28px;height:28px;border:2px solid var(--bd2);border-top-color:var(--lucky);border-radius:50%;animation:spin .8s linear infinite}
+
+/* Dashboard */
+.body{flex:1;padding:10px 18px 32px;display:flex;flex-direction:column;gap:9px}
+.slabel{font-size:10px;color:var(--muted);text-transform:uppercase;letter-spacing:.7px;padding:4px 1px 2px}
+.g2{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.card{background:var(--s1);border:1px solid var(--bd);border-radius:13px;padding:12px 13px}
+.card.hi{border-color:rgba(0,157,252,.35)}
+.cl{font-size:10px;color:var(--muted2);margin-bottom:4px}
+.cv{font-size:20px;font-weight:720;letter-spacing:-.5px;line-height:1}
+.cu{font-size:11px;font-weight:400;color:var(--muted2);margin-left:2px}
+.cs{font-size:10px;color:var(--muted2);margin-top:4px}
+.blue{color:var(--lucky2)}.green{color:var(--green)}.yellow{color:var(--yellow)}.purple{color:var(--purple)}.red{color:var(--red)}
+
+/* Chart */
+.chart-wrap{background:var(--s1);border:1px solid var(--bd);border-radius:13px;padding:11px 13px 13px}
+.chart-top{display:flex;align-items:center;justify-content:space-between;margin-bottom:9px}
+.chart-t{font-size:12px;font-weight:600}
+.chart-v{font-size:12px;font-weight:600;color:var(--lucky2)}
+canvas{display:block}
+
+/* Price bar */
+.price-bar{display:flex;align-items:center;justify-content:space-between;padding:4px 18px 10px;border-bottom:1px solid var(--bd)}
+.price-usd{font-size:20px;font-weight:720;color:var(--green)}
+.price-btc{font-size:11px;color:var(--muted2);margin-top:2px}
+.price-hr{font-size:12px;font-weight:600;color:var(--lucky2);text-align:right}
+.price-hr-sub{font-size:10px;color:var(--muted2);margin-top:2px;text-align:right}
+
+/* Section card */
+.scard{background:var(--s1);border:1px solid var(--bd);border-radius:13px;overflow:hidden}
+.scard-hdr{display:flex;align-items:center;justify-content:space-between;padding:10px 14px;border-bottom:1px solid var(--bd);font-size:12px;font-weight:600}
+.badge{font-size:10px;color:var(--muted2);background:var(--s2);padding:2px 7px;border-radius:20px;border:1px solid var(--bd)}
+.wrow{display:flex;align-items:center;gap:10px;padding:8px 14px;border-bottom:1px solid var(--bd)}
+.wrow:last-child{border-bottom:none}
+.wdot{width:7px;height:7px;border-radius:50%;flex-shrink:0}
+.wname{font-size:12px;font-weight:550;flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.whr{font-size:12px;font-weight:650;color:var(--lucky2);white-space:nowrap}
+.wtime{font-size:10px;color:var(--muted2);white-space:nowrap;text-align:right;margin-top:1px}
+.wagent{font-size:9px;color:var(--muted);margin-top:1px}
+.prow{display:flex;align-items:center;justify-content:space-between;padding:9px 14px;border-bottom:1px solid var(--bd)}
+.prow:last-child{border-bottom:none}
+.pamt{font-size:13px;font-weight:650;color:var(--green)}
+.pmeta{text-align:right;font-size:10px;color:var(--muted2);line-height:1.5}
+.ptx{font-size:10px;color:var(--lucky2);font-family:'SF Mono','Menlo',monospace;margin-top:1px}
+.kv{display:flex;align-items:center;justify-content:space-between;padding:8px 14px;border-bottom:1px solid var(--bd);font-size:12px}
+.kv:last-child{border-bottom:none}
+.kk{color:var(--muted2)}.kv-v{font-weight:550}
+.stale{background:rgba(234,179,8,.08);border:1px solid rgba(234,179,8,.25);border-radius:11px;padding:9px 13px;font-size:12px;color:var(--yellow);display:flex;align-items:center;gap:8px}
+.hint{text-align:center;font-size:11px;color:var(--muted);padding:6px 0 0}
+.offline-warn{background:rgba(239,68,68,.08);border:1px solid rgba(239,68,68,.25);border-radius:11px;padding:9px 13px;font-size:12px;color:var(--red)}
+.tag{display:inline-block;font-size:9px;padding:1px 6px;border-radius:10px;margin-left:4px;font-weight:600}
+.tag-lucky{background:rgba(0,157,252,.15);color:var(--lucky2);border:1px solid rgba(0,157,252,.3)}
+</style>
+</head>
+<body>
+<div class="app">
+
+  <!-- Header -->
+  <div class="hdr" id="hdr" style="display:none">
+    <div class="hdr-id">
+      <div class="logo">LP</div>
+      <div>
+        <div class="hdr-title">LuckyPool <span class="tag tag-lucky" id="coinTag">QTC</span></div>
+        <div class="hdr-sub" id="walletLabel">quantus.luckypool.io</div>
+      </div>
+    </div>
+    <div class="hdr-right">
+      <button class="btn-sm" onclick="logout()" title="Switch wallet">⇄</button>
+      <button class="btn-r" id="rb" onclick="doRefresh()"><span id="ri">↻</span> Refresh</button>
+    </div>
+  </div>
+
+  <!-- Login -->
+  <div class="login" id="loginScreen">
+    <div class="login-logo">🍀</div>
+    <div class="login-title">LuckyPool Monitor</div>
+    <div class="login-sub">Enter your QTC wallet address to view your LuckyPool mining stats.</div>
+    <div class="login-box">
+      <div class="login-label">QTC Wallet Address</div>
+      <input class="login-input" id="wi" type="text" placeholder="0x… or QTC wallet…"
+        autocomplete="off" autocorrect="off" autocapitalize="none" spellcheck="false">
+      <div class="login-err" id="loginErr"></div>
+      <button class="btn-login" id="loginBtn" onclick="loginLoad()">Load Stats</button>
+    </div>
+    <div class="login-hint">Stored only on this device — never shared.</div>
+  </div>
+
+  <!-- Loading -->
+  <div class="loading" id="loadingScreen" style="display:none">
+    <div class="spinner"></div>
+    <div id="loadingMsg">Fetching stats…</div>
+  </div>
+
+  <!-- Price bar -->
+  <div id="priceBar" style="display:none"></div>
+
+  <!-- Status bar -->
+  <div id="tsbarWrap" style="display:none">
+    <div class="tsbar">
+      <div class="dot" id="dot"></div>
+      <span id="stxt"></span>
+      <span class="tsbar-r" id="tslabel"></span>
+    </div>
+  </div>
+
+  <!-- Dashboard -->
+  <div class="body" id="body" style="display:none"></div>
+
+</div>
+
+<script>
+const API = 'https://quantus.luckypool.io/api';
+let COIN_UNITS = 1e12;  // set dynamically from API
+let SCALE = 1;  // 1 for QTC (real H/s), 4294967296 for PearlHash
+
+let WALLET = '';
+let current = null;
+let refreshTimer = null;
+let countdownTimer = null;
+let countdownSec = 0;
+
+// ── Helpers ──
+function fH(h) {
+  if (!h || isNaN(h)) return {v:'0', u:'H/s'};
+  h = h * SCALE;
+  if (h >= 1e18) return {v:(h/1e18).toFixed(2), u:'EH/s'};
+  if (h >= 1e15) return {v:(h/1e15).toFixed(2), u:'PH/s'};
+  if (h >= 1e12) return {v:(h/1e12).toFixed(2), u:'TH/s'};
+  if (h >= 1e9)  return {v:(h/1e9).toFixed(2),  u:'GH/s'};
+  if (h >= 1e6)  return {v:(h/1e6).toFixed(2),  u:'MH/s'};
+  if (h >= 1e3)  return {v:(h/1e3).toFixed(2),  u:'KH/s'};
+  return {v:h.toFixed(0), u:'H/s'};
+}
+function fHReal(h) {
+  // Already real hashrate (no scale needed — pool stats already in real H/s)
+  if (!h || isNaN(h)) return {v:'0', u:'H/s'};
+  if (h >= 1e18) return {v:(h/1e18).toFixed(2), u:'EH/s'};
+  if (h >= 1e15) return {v:(h/1e15).toFixed(2), u:'PH/s'};
+  if (h >= 1e12) return {v:(h/1e12).toFixed(2), u:'TH/s'};
+  if (h >= 1e9)  return {v:(h/1e9).toFixed(2),  u:'GH/s'};
+  if (h >= 1e6)  return {v:(h/1e6).toFixed(2),  u:'MH/s'};
+  if (h >= 1e3)  return {v:(h/1e3).toFixed(2),  u:'KH/s'};
+  return {v:h.toFixed(0), u:'H/s'};
+}
+function fP(n, d=4) {
+  if (n == null || isNaN(n)) return '—';
+  return (n / COIN_UNITS).toFixed(d);
+}
+function ago(tsMs) {
+  if (!tsMs) return '—';
+  const s = Math.floor(Date.now()/1000) - Math.floor(tsMs/1000);
+  if (s < 60)    return s + 's ago';
+  if (s < 3600)  return Math.floor(s/60) + 'm ago';
+  if (s < 86400) return Math.floor(s/3600) + 'h ago';
+  return Math.floor(s/86400) + 'd ago';
+}
+function fD(tsMs) {
+  if (!tsMs) return '—';
+  return new Date(parseInt(tsMs)).toLocaleString('en-US', {month:'short', day:'numeric', hour:'2-digit', minute:'2-digit'});
+}
+function wSt(tsMs) {
+  const s = Date.now() - parseInt(tsMs || 0);
+  if (s < 300000)  return {c:'var(--green)', g:'0 0 6px var(--green)'};
+  if (s < 1800000) return {c:'var(--yellow)', g:'none'};
+  return {c:'var(--red)', g:'none'};
+}
+function esc(s) { return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;'); }
+function fmtPrice(p) {
+  if (!p) return '—';
+  const n = parseFloat(p);
+  if (n >= 1000) return '$' + n.toFixed(0);
+  if (n >= 1)    return '$' + n.toFixed(2);
+  if (n >= 0.01) return '$' + n.toFixed(4);
+  return '$' + n.toFixed(6);
+}
+
+// ── Countdown ──
+function startCountdown(sec) {
+  clearInterval(countdownTimer);
+  countdownSec = sec;
+  updateCountdown();
+  countdownTimer = setInterval(() => {
+    countdownSec--;
+    if (countdownSec <= 0) clearInterval(countdownTimer);
+    else updateCountdown();
+  }, 1000);
+}
+function updateCountdown() {
+  const el = document.getElementById('tslabel');
+  if (el && countdownSec > 0 && !el.textContent.includes('Fetching')) {
+    const m = Math.floor(countdownSec/60), s = countdownSec % 60;
+    el.textContent = m > 0 ? `Next: ${m}m ${s}s` : `Next: ${s}s`;
+  }
+}
+
+// ── Screens ──
+function showLogin(err) {
+  document.getElementById('loginScreen').style.display = 'flex';
+  document.getElementById('loadingScreen').style.display = 'none';
+  document.getElementById('hdr').style.display = 'none';
+  document.getElementById('priceBar').style.display = 'none';
+  document.getElementById('tsbarWrap').style.display = 'none';
+  document.getElementById('body').style.display = 'none';
+  const el = document.getElementById('loginErr');
+  if (err) { el.textContent = err; el.style.display = 'block'; }
+  else el.style.display = 'none';
+  document.getElementById('loginBtn').textContent = 'Load Stats';
+  document.getElementById('loginBtn').disabled = false;
+}
+function showLoading(msg='Fetching stats…') {
+  document.getElementById('loginScreen').style.display = 'none';
+  document.getElementById('loadingScreen').style.display = 'flex';
+  document.getElementById('hdr').style.display = 'none';
+  document.getElementById('priceBar').style.display = 'none';
+  document.getElementById('tsbarWrap').style.display = 'none';
+  document.getElementById('body').style.display = 'none';
+  document.getElementById('loadingMsg').textContent = msg;
+}
+function showDash() {
+  document.getElementById('loginScreen').style.display = 'none';
+  document.getElementById('loadingScreen').style.display = 'none';
+  document.getElementById('hdr').style.display = 'flex';
+  document.getElementById('priceBar').style.display = 'flex';
+  document.getElementById('tsbarWrap').style.display = 'block';
+  document.getElementById('body').style.display = 'flex';
+  document.getElementById('walletLabel').textContent = WALLET.slice(0,10)+'…'+WALLET.slice(-6);
+}
+
+// ── Auth ──
+function loginLoad() {
+  const w = document.getElementById('wi').value.trim();
+  if (!w || w.length < 10) {
+    document.getElementById('loginErr').textContent = 'Please enter a valid PRL wallet address.';
+    document.getElementById('loginErr').style.display = 'block';
+    return;
+  }
+  document.getElementById('loginErr').style.display = 'none';
+  document.getElementById('loginBtn').textContent = 'Loading…';
+  document.getElementById('loginBtn').disabled = true;
+  WALLET = w;
+  try { localStorage.setItem('lp_wallet', w); } catch(e) {}
+  fetchAndRender();
+}
+function logout() {
+  try { localStorage.removeItem('lp_wallet'); localStorage.removeItem('lp_cache'); } catch(e) {}
+  WALLET = ''; current = null;
+  document.getElementById('wi').value = '';
+  clearTimeout(refreshTimer); clearInterval(countdownTimer);
+  showLogin();
+}
+
+// ── Fetch ──
+async function fetchData(wallet, silent=false) {
+  const [mr, pr] = await Promise.all([
+    fetch(`${API}/stats_address?address=${wallet}`, {headers:{'Accept':'application/json'}}),
+    fetch(`${API}/stats?v=2`, {headers:{'Accept':'application/json'}})
+  ]);
+  if (!mr.ok) throw new Error(`HTTP ${mr.status}`);
+  const [m, p] = await Promise.all([mr.json(), pr.json()]);
+
+  const st = m.stats || {};
+  if (!st.wallet && !st.hashes) throw new Error('Wallet not found or has no activity on LuckyPool.');
+
+  const net = p.network || {};
+  const stats = p.stats || {};
+  const markets = p.markets || {};
+  const config = p.config || {};
+  // Set coin units and scale from config
+  COIN_UNITS = config.coinUnits || 1e8;
+  // PearlHash uses 2^32 scale; other algos use raw H/s
+  SCALE = (config.algo || '').includes('pearl') ? 4294967296 : 1;
+  const poolPayments = p.payments || [];
+  const charts = p.charts || [];
+
+  // LuckyPool chart format: [timestamp, miners, workers, poolHashrate, networkHashrate, price, soloHashrate, blocks]
+  const hrChart = charts.map(c => [c[0], c[3]]); // pool hashrate over time (real units)
+
+  return {
+    fetched: Math.floor(Date.now()/1000),
+    wallet,
+    // hashrateAvg is null at wallet level — sum from workers instead
+    const workers_raw = m.workers || [];
+    const sum1h  = workers_raw.reduce((a,w) => a + (w.hashrateAvg?.['1h']  || 0), 0);
+    const sum6h  = workers_raw.reduce((a,w) => a + (w.hashrateAvg?.['6h']  || 0), 0);
+    const sum24h = workers_raw.reduce((a,w) => a + (w.hashrateAvg?.['24h'] || 0), 0);
+    const sumCur = workers_raw.reduce((a,w) => a + (w.hashrate || 0), 0);
+
+    stat: {
+      hr:    sumCur || st.hashrate || 0,
+      hr1h:  sum1h,
+      hr6h:  sum6h,
+      hr24h: sum24h,
+      bal:       (parseInt(st.unlocked||0) + parseInt(st.locked||0)),
+      unlocked:  parseInt(st.unlocked||0),
+      locked:    parseInt(st.locked||0),
+      paid:      parseInt(st.paid||0),
+      accepted:  parseInt(st.acceptedShares||0),
+      rejected:  parseInt(st.rejectedShares||0),
+      lastShare: parseInt(st.lastShare||0), // ms
+      hashes:    parseInt(st.hashes||0),
+    },
+    pool: {
+      hashrate:    stats.hashrate || 0,
+      netHashrate: net.hashrate || 0,
+      miners:      stats.miners || 0,
+      workers:     stats.workers || 0,
+      height:      net.height || 0,
+      blockTime:   net.blockTime || 120,
+      blockReward: parseInt(net.reward||0),
+      rewardPerHashPerDay: net.rewardPerHashPerDay || 0,
+      fee:         config.fee || 1,
+      price_usd:   markets.price || '—',
+      price_btc:   markets.btc || '—',
+      totalPaid:   parseInt(stats.totalPaid||0),
+    },
+    workers: (m.workers || []),
+    payments: (m.payments || []),
+    poolPayments: poolPayments.slice(0, 8),
+    hrChart,
+  };
+}
+
+async function fetchAndRender(silent=false) {
+  if (!silent) showLoading('Fetching LuckyPool stats…');
+  try {
+    const d = await fetchData(WALLET, silent);
+    current = d;
+    try { localStorage.setItem('lp_cache', JSON.stringify(d)); } catch(e) {}
+    render(d);
+    if (!silent) showDash();
+    clearTimeout(refreshTimer);
+    refreshTimer = setTimeout(() => doRefresh(), 60000);
+    startCountdown(60);
+  } catch(e) {
+    if (!silent) {
+      try {
+        const cached = JSON.parse(localStorage.getItem('lp_cache') || 'null');
+        if (cached && cached.wallet === WALLET) { current=cached; render(cached); showDash(); return; }
+      } catch(e2) {}
+      showLogin('⚠️ ' + e.message);
+    } else {
+      document.getElementById('tslabel').textContent = 'Refresh failed';
+      if (current) render(current);
+      refreshTimer = setTimeout(() => doRefresh(), 60000);
+      startCountdown(60);
+    }
+  }
+}
+
+async function doRefresh() {
+  if (!WALLET) return;
+  const ic = document.getElementById('ri');
+  const rb = document.getElementById('rb');
+  ic.classList.add('spin');
+  if (rb) rb.disabled = true;
+  clearInterval(countdownTimer);
+  clearTimeout(refreshTimer);
+  document.getElementById('tslabel').textContent = 'Fetching…';
+  try {
+    await fetchAndRender(true);
+    showDash();
+  } catch(e) {}
+  finally {
+    if (rb) rb.disabled = false;
+    ic.classList.remove('spin');
+  }
+}
+
+// ── Render ──
+function render(d) {
+  const st = d.stat, pool = d.pool;
+  const now = new Date(d.fetched*1000).toLocaleTimeString('en-US', {hour:'2-digit', minute:'2-digit'});
+  const pUSD = parseFloat(pool.price_usd) || 0;
+
+  // Status dot
+  const isOnline = (Date.now() - st.lastShare) < 600000; // 10 min in ms
+  const dot = document.getElementById('dot');
+  dot.style.background = isOnline ? 'var(--green)' : 'var(--yellow)';
+  dot.style.boxShadow = isOnline ? '0 0 6px var(--green)' : 'none';
+  document.getElementById('stxt').textContent = isOnline ? 'Mining active' : 'No recent shares';
+  document.getElementById('tslabel').textContent = 'Updated ' + now;
+  startCountdown(60);
+
+  // Hashrate display — miner hr is in raw shares/s, needs SCALE
+  // Pool hashrate is already in real H/s
+  const hrF   = fH(st.hr);
+  const hr1F  = fH(st.hr1h);
+  const hr6F  = fH(st.hr6h);
+  const hr24F = fH(st.hr24h);
+  const poolHrF = fHReal(pool.hashrate);
+  const netHrF  = fHReal(pool.netHashrate);
+
+  // Price bar
+  document.getElementById('priceBar').innerHTML = `
+    <div style="padding:4px 18px 10px;display:flex;align-items:center;justify-content:space-between;border-bottom:1px solid var(--bd);width:100%">
+      <div>
+        <div class="price-usd">${fmtPrice(pool.price_usd)}</div>
+        <div class="price-btc">${parseInt(pool.price_btc).toLocaleString()} sats</div>
+      </div>
+      <div style="text-align:right">
+        <div class="price-hr">${hrF.v} ${hrF.u}</div>
+        <div class="price-hr-sub">Your hashrate</div>
+      </div>
+    </div>`;
+
+  // Estimated daily — prefer 24h avg for stability, fall back to current
+  const myHr = st.hr24h || st.hr6h || st.hr1h || st.hr || 0;
+  const myRealHr = myHr * SCALE;
+  let estDay = 0;
+  if (pool.rewardPerHashPerDay) {
+    estDay = pool.rewardPerHashPerDay * myRealHr;
+  } else if (pool.netHashrate > 0 && pool.blockReward > 0) {
+    const bpd = 86400 / (pool.blockTime || 120);
+    estDay = (myRealHr / pool.netHashrate) * bpd * (pool.blockReward / COIN_UNITS);
+  }
+  const estUSD = (estDay * pUSD).toFixed(2);
+  const estMonth = (estDay * 30 * pUSD).toFixed(0);
+
+  // Acceptance rate
+  const totalShares = st.accepted + st.rejected;
+  const acc = totalShares > 0 ? ((st.accepted / totalShares) * 100).toFixed(1) : '—';
+  const accCls = parseFloat(acc) > 98 ? 'green' : parseFloat(acc) > 94 ? 'yellow' : 'red';
+
+  const age = Math.floor(Date.now()/1000) - d.fetched;
+
+  let html = '';
+
+  // Stale warning
+  if (age > 300) html += `<div class="stale">⚠️ Data is ${Math.floor(age/60)}m old — tap Refresh</div>`;
+
+  // Offline warning
+  if (!isOnline) html += `<div class="offline-warn">⚠️ No shares received in the last 10 minutes. Check your rig.</div>`;
+
+  // Hashrate chart (pool hashrate for context)
+  html += `<div class="chart-wrap">
+    <div class="chart-top">
+      <span class="chart-t">Pool Hashrate (history)</span>
+      <span class="chart-v">${poolHrF.v} <span style="font-size:10px;color:var(--muted2)">${poolHrF.u}</span></span>
+    </div>
+    <canvas id="hc" height="68" style="width:100%;height:68px"></canvas>
+  </div>`;
+
+  // Stats grid
+  html += `<div class="slabel">Your Stats</div>
+  <div class="g2">
+    <div class="card hi">
+      <div class="cl">Current Hashrate</div>
+      <div class="cv blue">${hrF.v}<span class="cu">${hrF.u}</span></div>
+      <div class="cs">1h: ${st.hr1h ? hr1F.v+' '+hr1F.u : '—'}</div>
+    </div>
+    <div class="card">
+      <div class="cl">24h Average</div>
+      <div class="cv">${st.hr24h ? hr24F.v : '—'}<span class="cu">${st.hr24h ? hr24F.u : ''}</span></div>
+      <div class="cs">6h: ${st.hr6h ? hr6F.v+' '+hr6F.u : '—'}</div>
+    </div>
+    <div class="card">
+      <div class="cl">Unlocked Balance</div>
+      <div class="cv green">${fP(st.unlocked, 4)}<span class="cu">QTC</span></div>
+      <div class="cs">≈ $${(parseFloat(fP(st.unlocked,4))*pUSD).toFixed(3)}</div>
+    </div>
+    <div class="card">
+      <div class="cl">Total Paid</div>
+      <div class="cv">${fP(st.paid, 2)}<span class="cu">QTC</span></div>
+      <div class="cs">≈ $${(parseFloat(fP(st.paid,2))*pUSD).toFixed(2)}</div>
+    </div>
+    <div class="card">
+      <div class="cl">Acceptance Rate</div>
+      <div class="cv ${accCls}">${acc}<span class="cu">%</span></div>
+      <div class="cs">${st.accepted.toLocaleString()} good · ${st.rejected.toLocaleString()} rej</div>
+    </div>
+    <div class="card">
+      <div class="cl">Last Share</div>
+      <div class="cv" style="font-size:16px">${ago(st.lastShare)}</div>
+      <div class="cs">${fD(st.lastShare)}</div>
+    </div>
+  </div>`;
+
+  // Estimated daily
+  html += `<div class="card" style="border-color:rgba(34,197,94,.25)">
+    <div class="cl">Estimated Daily Earnings</div>
+    <div style="display:flex;align-items:baseline;gap:8px;flex-wrap:wrap">
+      <div class="cv green">${estDay.toFixed(4)}<span class="cu">QTC</span></div>
+      <div style="font-size:15px;font-weight:600;color:var(--green)">≈ $${estUSD}</div>
+    </div>
+    <div class="cs">~$${estMonth}/mo · based on current network hashrate</div>
+  </div>`;
+
+  // Workers
+  if (d.workers.length > 0) {
+    const onlineW = d.workers.filter(w => (Date.now() - parseInt(w.lastShare||0)) < 600000).length;
+    html += `<div class="slabel">Workers (${d.workers.length})</div>
+    <div class="scard">
+      <div class="scard-hdr">Rigs <span class="badge">${onlineW}/${d.workers.length} online</span></div>`;
+    d.workers.sort((a,b) => parseInt(b.lastShare||0) - parseInt(a.lastShare||0)).forEach(w => {
+      const ws = wSt(w.lastShare);
+      const whr = fH(w.hashrate || 0);
+      const whr1 = fH(w.hashrateAvg?.['1h'] || 0);
+      const ag = (w.agent||'').replace('SRBMiner-MULTI/','SRB ').replace('bzminer-v','BZ v').replace('XMRig/','XMRig ');
+      html += `<div class="wrow">
+        <div class="wdot" style="background:${ws.c};box-shadow:${ws.g}"></div>
+        <div style="flex:1;min-width:0">
+          <div class="wname">${esc(w.name||w.id||'worker')}</div>
+          <div class="wagent">${esc(ag)}</div>
+        </div>
+        <div style="text-align:right">
+          <div class="whr">${whr.v} <span style="font-size:9px;color:var(--muted2)">${whr.u}</span></div>
+          <div class="wtime">1h: ${whr1.v} ${whr1.u}</div>
+          <div class="wtime">${ago(w.lastShare)}</div>
+        </div>
+      </div>`;
+    });
+    html += `</div>`;
+  } else {
+    html += `<div class="slabel">Workers</div>
+    <div class="scard"><div class="kv"><span class="kk">Status</span><span class="kv-v" style="color:var(--muted2)">No active workers</span></div></div>`;
+  }
+
+  // Miner payments
+  if (d.payments.length > 0) {
+    html += `<div class="slabel">Your Payments</div>
+    <div class="scard"><div class="scard-hdr">Recent Payouts</div>`;
+    d.payments.slice(0,8).forEach(p => {
+      const amt = parseInt(p.amount||0);
+      html += `<div class="prow">
+        <div>
+          <div class="pamt">+${fP(amt,4)} QTC</div>
+          <div class="ptx">${(p.txHash||'').slice(0,14)}…</div>
+        </div>
+        <div class="pmeta">${fD(p.timestamp)}<br>≈ $${(parseFloat(fP(amt,4))*pUSD).toFixed(3)}</div>
+      </div>`;
+    });
+    html += `</div>`;
+  }
+
+  // Pool stats
+  html += `<div class="slabel">Pool & Network</div>
+  <div class="scard">
+    <div class="kv"><span class="kk">PRL Price</span><span class="kv-v green">${fmtPrice(pool.price_usd)} <span style="color:var(--muted2);font-size:10px">/ ${parseInt(pool.price_btc).toLocaleString()} sats</span></span></div>
+    <div class="kv"><span class="kk">Pool Hashrate</span><span class="kv-v blue">${poolHrF.v} ${poolHrF.u}</span></div>
+    <div class="kv"><span class="kk">Network Hashrate</span><span class="kv-v">${netHrF.v} ${netHrF.u}</span></div>
+    <div class="kv"><span class="kk">Miners / Workers</span><span class="kv-v">${pool.miners.toLocaleString()} / ${pool.workers.toLocaleString()}</span></div>
+    <div class="kv"><span class="kk">Block Height</span><span class="kv-v">${pool.height.toLocaleString()}</span></div>
+    <div class="kv"><span class="kk">Block Reward</span><span class="kv-v">${fP(pool.blockReward,2)} QTC</span></div>
+    <div class="kv"><span class="kk">Block Time</span><span class="kv-v">${pool.blockTime.toFixed(0)}s</span></div>
+    <div class="kv"><span class="kk">Pool Fee</span><span class="kv-v" style="color:var(--yellow)">${pool.fee}%</span></div>
+  </div>`;
+
+  html += `<div class="hint">Updated ${now} · LuckyPool 1% fee</div>`;
+
+  document.getElementById('body').innerHTML = html;
+  const chartPts = d.hrChart.map(c => c[1]);
+  requestAnimationFrame(() => requestAnimationFrame(() => drawChart('hc', chartPts, false)));
+}
+
+// ── Chart (real hashrate — no scale needed) ──
+function drawChart(id, pts, needsScale=false) {
+  const c = document.getElementById(id);
+  if (!c || pts.length < 2) return;
+  const dpr = window.devicePixelRatio || 1;
+  const W = c.parentElement.clientWidth - 26, H = 68;
+  c.width = W*dpr; c.height = H*dpr;
+  c.style.width = W+'px'; c.style.height = H+'px';
+  const ctx = c.getContext('2d');
+  ctx.scale(dpr, dpr);
+  const scaled = needsScale ? pts.map(v => v * SCALE) : pts;
+  const min = Math.min(...scaled) * .92, max = Math.max(...scaled) * 1.05, n = scaled.length;
+  const xO = i => i*(W/(n-1)), yO = v => H-((v-min)/(max-min))*(H-8)-4;
+  const g = ctx.createLinearGradient(0,0,0,H);
+  g.addColorStop(0,'rgba(0,157,252,.28)'); g.addColorStop(1,'rgba(0,157,252,.01)');
+  ctx.beginPath(); ctx.moveTo(xO(0),yO(scaled[0]));
+  for(let i=1;i<n;i++){const cx=(xO(i-1)+xO(i))/2;ctx.bezierCurveTo(cx,yO(scaled[i-1]),cx,yO(scaled[i]),xO(i),yO(scaled[i]));}
+  ctx.lineTo(xO(n-1),H);ctx.lineTo(0,H);ctx.closePath();ctx.fillStyle=g;ctx.fill();
+  ctx.beginPath();ctx.moveTo(xO(0),yO(scaled[0]));
+  for(let i=1;i<n;i++){const cx=(xO(i-1)+xO(i))/2;ctx.bezierCurveTo(cx,yO(scaled[i-1]),cx,yO(scaled[i]),xO(i),yO(scaled[i]));}
+  ctx.strokeStyle='#009DFC';ctx.lineWidth=1.8;ctx.stroke();
+  ctx.beginPath();ctx.arc(xO(n-1),yO(scaled[n-1]),3,0,Math.PI*2);ctx.fillStyle='#33b5fd';ctx.fill();
+}
+
+// ── Enter key ──
+document.getElementById('wi').addEventListener('keydown', e => { if(e.key==='Enter') loginLoad(); });
+
+// ── Boot ──
+try {
+  const saved = localStorage.getItem('lp_wallet');
+  if (saved) {
+    WALLET = saved;
+    document.getElementById('wi').value = saved;
+    const cached = localStorage.getItem('lp_cache');
+    if (cached) {
+      const c = JSON.parse(cached);
+      if (c.wallet === WALLET) {
+        current = c; render(c); showDash();
+        fetchAndRender(true); // refresh in background
+      } else { fetchAndRender(); }
+    } else { fetchAndRender(); }
+  } else { showLogin(); }
+} catch(e) { showLogin(); }
+</script>
+</body>
+</html>
