@@ -7,6 +7,7 @@
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <meta name="apple-mobile-web-app-title" content="QTC Monitor">
 <meta name="theme-color" content="#080c18">
+<link rel="apple-touch-icon" href="https://luckypool.io/apple-touch-icon.png">
 <title>LuckyPool QTC Monitor</title>
 <style>
 :root{
@@ -118,10 +119,10 @@ canvas{display:block}
   <!-- Header -->
   <div class="hdr" id="hdr" style="display:none">
     <div class="hdr-id">
-      <div class="logo">LP</div>
+      <div class="logo" style="background:none;padding:0"><img src="https://luckypool.io/apple-touch-icon.png" width="34" height="34" style="border-radius:9px;display:block"></div>
       <div>
         <div class="hdr-title">LuckyPool <span class="tag tag-lucky" id="coinTag">QTC</span></div>
-        <div class="hdr-sub" id="walletLabel">quantus.luckypool.io</div>
+        <div class="hdr-sub" id="walletLabel">quantus.luckypool.io · v1.01</div>
       </div>
     </div>
     <div class="hdr-right">
@@ -132,7 +133,7 @@ canvas{display:block}
 
   <!-- Login -->
   <div class="login" id="loginScreen">
-    <div class="login-logo">🍀</div>
+    <div class="login-logo" style="background:none;padding:0"><img src="https://luckypool.io/apple-touch-icon.png" width="72" height="72" style="border-radius:20px;display:block"></div>
     <div class="login-title">LuckyPool Monitor</div>
     <div class="login-sub">Enter your QTC wallet address to view your LuckyPool mining stats.</div>
     <div class="login-box">
@@ -283,7 +284,7 @@ function showDash() {
   document.getElementById('priceBar').style.display = 'flex';
   document.getElementById('tsbarWrap').style.display = 'block';
   document.getElementById('body').style.display = 'flex';
-  document.getElementById('walletLabel').textContent = WALLET.slice(0,10)+'…'+WALLET.slice(-6);
+  document.getElementById('walletLabel').textContent = WALLET.slice(0,10)+'…'+WALLET.slice(-6)+' · v1.01';
 }
 
 // ── Auth ──
