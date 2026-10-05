@@ -7,7 +7,7 @@
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <meta name="apple-mobile-web-app-title" content="TSC Monitor">
 <meta name="theme-color" content="#080c18">
-<link rel="apple-touch-icon" href="https://tscscan.xyz/static/logo.svg">
+<link rel="apple-touch-icon" href="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAxMDI0IDEwMjQiPjxjaXJjbGUgY3g9IjUxMiIgY3k9IjUxMCIgcj0iNDI1IiBmaWxsPSIjNzMxRDMwIi8+PHJlY3QgeD0iNDg5IiB5PSIxODAiIHdpZHRoPSI0MiIgaGVpZ2h0PSI0MiIgZmlsbD0iI0Y3RjhGOSIvPjxyZWN0IHg9IjQ4OSIgeT0iODAwIiB3aWR0aD0iNDIiIGhlaWdodD0iNDIiIGZpbGw9IiNGN0Y4RjkiLz48cGF0aCBmaWxsPSIjRjdGOEY5IiBkPSJNIDI4OSAyNjkgTCA3MzIgMjY5IEwgNzMyIDM4NCBMIDY4MyAzODQgQyA2NjAgMzgwIDY1MCAzNjUgNjUwIDMzNyBMIDU2NSAzMzYgTCA1NjUgNjg2IEMgNTk1IDY5MCA2MTUgNzA1IDYyMSA3MTEgTCA2MjEgNzU2IEwgNDAyIDc1NiBMIDQwMiA3MTEgQyA0MDggNzA1IDQyOCA2OTAgNDU5IDY4NiBMIDQ1OSAzMzYgTCAzNzQgMzM2IEMgMzc0IDM2NSAzNjMgMzgwIDM0MCAzODQgTCAyODkgMzg0IFoiLz48L3N2Zz4=">
 <title>Tiger Pool TSC Monitor</title>
 <style>
 :root{--bg:#080c18;--s1:#0f1523;--s2:#161e30;--bd:#1c2840;--bd2:#243050;--blue:#3b82f6;--blue2:#60a5fa;--green:#22c55e;--yellow:#eab308;--red:#ef4444;--purple:#a78bfa;--orange:#f97316;--text:#e2e8f0;--muted:#3d5070;--muted2:#6b7fa0;--tiger:#f59e0b;--tiger2:#fbbf24;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
@@ -93,7 +93,7 @@ canvas{display:block}
 <!-- Header -->
 <div class="hdr" id="hdr" style="display:none">
   <div class="hdr-id">
-    <div class="logo">🐯</div>
+    <div class="logo" style="background:none;padding:0;overflow:hidden"><img src="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAxMDI0IDEwMjQiPjxjaXJjbGUgY3g9IjUxMiIgY3k9IjUxMCIgcj0iNDI1IiBmaWxsPSIjNzMxRDMwIi8+PHJlY3QgeD0iNDg5IiB5PSIxODAiIHdpZHRoPSI0MiIgaGVpZ2h0PSI0MiIgZmlsbD0iI0Y3RjhGOSIvPjxyZWN0IHg9IjQ4OSIgeT0iODAwIiB3aWR0aD0iNDIiIGhlaWdodD0iNDIiIGZpbGw9IiNGN0Y4RjkiLz48cGF0aCBmaWxsPSIjRjdGOEY5IiBkPSJNIDI4OSAyNjkgTCA3MzIgMjY5IEwgNzMyIDM4NCBMIDY4MyAzODQgQyA2NjAgMzgwIDY1MCAzNjUgNjUwIDMzNyBMIDU2NSAzMzYgTCA1NjUgNjg2IEMgNTk1IDY5MCA2MTUgNzA1IDYyMSA3MTEgTCA2MjEgNzU2IEwgNDAyIDc1NiBMIDQwMiA3MTEgQyA0MDggNzA1IDQyOCA2OTAgNDU5IDY4NiBMIDQ1OSAzMzYgTCAzNzQgMzM2IEMgMzc0IDM2NSAzNjMgMzgwIDM0MCAzODQgTCAyODkgMzg0IFoiLz48L3N2Zz4=" width="34" height="34" style="border-radius:9px;display:block"></div>
     <div>
       <div class="hdr-title">Tiger Pool <span style="font-size:10px;background:rgba(245,158,11,.15);color:var(--tiger2);padding:1px 6px;border-radius:10px;border:1px solid rgba(245,158,11,.3);font-weight:600">TSC</span></div>
       <div class="hdr-sub" id="walletLabel">tsc-miner.tiger-pool.com · v1.00</div>
@@ -107,7 +107,7 @@ canvas{display:block}
 
 <!-- Login -->
 <div class="login" id="loginScreen">
-  <div class="login-logo">🐯</div>
+  <div class="login-logo" style="background:none;padding:0"><img src="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAxMDI0IDEwMjQiPjxjaXJjbGUgY3g9IjUxMiIgY3k9IjUxMCIgcj0iNDI1IiBmaWxsPSIjNzMxRDMwIi8+PHJlY3QgeD0iNDg5IiB5PSIxODAiIHdpZHRoPSI0MiIgaGVpZ2h0PSI0MiIgZmlsbD0iI0Y3RjhGOSIvPjxyZWN0IHg9IjQ4OSIgeT0iODAwIiB3aWR0aD0iNDIiIGhlaWdodD0iNDIiIGZpbGw9IiNGN0Y4RjkiLz48cGF0aCBmaWxsPSIjRjdGOEY5IiBkPSJNIDI4OSAyNjkgTCA3MzIgMjY5IEwgNzMyIDM4NCBMIDY4MyAzODQgQyA2NjAgMzgwIDY1MCAzNjUgNjUwIDMzNyBMIDU2NSAzMzYgTCA1NjUgNjg2IEMgNTk1IDY5MCA2MTUgNzA1IDYyMSA3MTEgTCA2MjEgNzU2IEwgNDAyIDc1NiBMIDQwMiA3MTEgQyA0MDggNzA1IDQyOCA2OTAgNDU5IDY4NiBMIDQ1OSAzMzYgTCAzNzQgMzM2IEMgMzc0IDM2NSAzNjMgMzgwIDM0MCAzODQgTCAyODkgMzg0IFoiLz48L3N2Zz4=" width="72" height="72" style="border-radius:20px;display:block"></div>
   <div class="login-title">Tiger Pool Monitor</div>
   <div class="login-sub">Enter your TSC wallet address (tc1q…) to view your mining stats.</div>
   <div class="login-box">
@@ -338,6 +338,14 @@ async function fetchData(wallet, silent=false) {
       marketCap:      market.circulating_market_cap_usdt||'—',
       source:         market.source||'',
     },
+    priceHistory: await (async () => {
+      try {
+        const r = await fetch(`${SCAN_API}/market-price-history`);
+        if (!r.ok) return [];
+        const d = await r.json();
+        return (d.prices || d || []).map(p => p.price_usdt || p.price || p[1] || 0).filter(v=>v>0);
+      } catch(e) { return []; }
+    })(),
     workers: workers.map(w => ({
       id:         w.WorkerID||'',
       hashrate:   w.Hashrate||0,
@@ -410,18 +418,20 @@ function render(d) {
   // Price bar
   const hrF = fH(st.hr);
   const changeColor = mkt.change24h.startsWith('+') ? 'var(--green)' : 'var(--red)';
+  // Build price sparkline from market history if available
   document.getElementById('priceBar').innerHTML = `
-    <div style="padding:4px 18px 10px;display:flex;align-items:center;justify-content:space-between;border-bottom:1px solid var(--bd);width:100%">
-      <div>
-        <div class="price-usd">${fmtPrice(mkt.price)}</div>
-        <div class="price-change" style="color:${changeColor}">${mkt.change24h} 24h</div>
-        <div class="price-btc">via ${mkt.source}</div>
+    <div style="padding:10px 18px 12px;display:flex;align-items:center;justify-content:space-between;border-bottom:1px solid var(--bd);width:100%;gap:12px">
+      <div style="flex:1">
+        <div style="font-size:10px;color:var(--muted2);text-transform:uppercase;letter-spacing:.6px;margin-bottom:4px">TSC Price</div>
+        <div style="font-size:26px;font-weight:720;color:var(--green);letter-spacing:-.5px;line-height:1">${parseFloat(mkt.price).toFixed(4)}</div>
+        <div style="font-size:12px;font-weight:600;color:${changeColor};margin-top:3px">${mkt.change24h} in 24h</div>
       </div>
-      <div style="text-align:right">
-        <div class="price-hr">${hrF.v} ${hrF.u}</div>
-        <div class="price-hr-sub">Your hashrate</div>
+      <div>
+        <canvas id="priceChart" width="120" height="48" style="display:block"></canvas>
       </div>
     </div>`;
+  // Draw price sparkline
+  drawPriceChart('priceChart', d.priceHistory || []);
 
   const age = Math.floor(Date.now()/1000) - d.fetched;
   let html = '';
@@ -539,11 +549,31 @@ function render(d) {
   const netHrF = fH(pool.netHashrate);
   const netHr24F = fH(pool.netHashrate24h);
   const poolHrF = fH(pool.hashrate);
-  html += `<div class="slabel">Network & Pool (TSCScan)</div>
-  <div class="scard">
+  // Network rate % change vs 24h
+  const netChgPct = pool.netHashrate24h > 0 ? ((pool.netHashrate - pool.netHashrate24h) / pool.netHashrate24h * 100) : 0;
+  const netChgColor = netChgPct >= 0 ? 'var(--green)' : 'var(--red)';
+  const netChgStr = (netChgPct >= 0 ? '+' : '') + netChgPct.toFixed(2) + '%';
+
+  html += `<div class="slabel">Network & Pool (TSCScan)</div>`;
+
+  // Effective network rate card — styled like TSCScan
+  html += `<div class="card" style="border-color:rgba(245,158,11,.2)">
+    <div style="font-size:9.5px;color:var(--muted2);text-transform:uppercase;letter-spacing:.7px;margin-bottom:6px">Effective Network Rate · 50 blocks</div>
+    <div style="display:flex;align-items:flex-end;justify-content:space-between">
+      <div>
+        <div style="font-size:22px;font-weight:720;color:var(--text);letter-spacing:-.5px;line-height:1.1">${netHrF.v}${netHrF.u.replace('/s','')}</div>
+        <div style="font-size:16px;font-weight:600;color:var(--muted2);margin-top:1px">proof/s</div>
+        <div style="font-size:10.5px;color:var(--muted2);margin-top:6px">24h average ${netHr24F.v}${netHr24F.u.replace('/s','')} proof/s</div>
+      </div>
+      <div style="text-align:right">
+        <div style="font-size:14px;font-weight:700;color:${netChgColor}">${netChgPct >= 0 ? '↑' : '↓'} ${Math.abs(netChgPct).toFixed(2)}%</div>
+        <div style="font-size:10px;color:var(--muted2);margin-top:2px">24h</div>
+      </div>
+    </div>
+  </div>`;
+
+  html += `<div class="scard">
     <div class="kv"><span class="kk">TSC Price</span><span class="kv-v green">${fmtPrice(mkt.price)} <span style="color:${changeColor};font-size:10px">${mkt.change24h}</span></span></div>
-    <div class="kv"><span class="kk">Network Rate</span><span class="kv-v tiger">${netHrF.v} ${netHrF.u}</span></div>
-    <div class="kv"><span class="kk">Network Rate 24h</span><span class="kv-v">${netHr24F.v} ${netHr24F.u}</span></div>
     <div class="kv"><span class="kk">Pool Hashrate</span><span class="kv-v blue">${poolHrF.v} ${poolHrF.u}</span></div>
     <div class="kv"><span class="kk">Pool Workers</span><span class="kv-v">${pool.onlineWorkers.toLocaleString()} online / ${pool.workers.toLocaleString()} total</span></div>
     <div class="kv"><span class="kk">Chain Height</span><span class="kv-v">${pool.height.toLocaleString()}</span></div>
@@ -575,6 +605,29 @@ function drawChart(id, pts) {
   for(let i=1;i<n;i++){const cx=(xO(i-1)+xO(i))/2;ctx.bezierCurveTo(cx,yO(pts[i-1]),cx,yO(pts[i]),xO(i),yO(pts[i]));}
   ctx.strokeStyle='#f59e0b';ctx.lineWidth=1.8;ctx.stroke();
   ctx.beginPath();ctx.arc(xO(n-1),yO(pts[n-1]),3,0,Math.PI*2);ctx.fillStyle='#fbbf24';ctx.fill();
+}
+
+function drawPriceChart(id, pts) {
+  const c = document.getElementById(id);
+  if (!c || pts.length < 2) return;
+  const dpr = window.devicePixelRatio||1, W = 120, H = 48;
+  c.width=W*dpr; c.height=H*dpr; c.style.width=W+'px'; c.style.height=H+'px';
+  const ctx = c.getContext('2d'); ctx.scale(dpr,dpr);
+  const min = Math.min(...pts)*.99, max = Math.max(...pts)*1.01||1, n = pts.length;
+  const xO = i => i*(W/(n-1)), yO = v => H-((v-min)/(max-min))*(H-4)-2;
+  const last = pts[pts.length-1], first = pts[0];
+  const up = last >= first;
+  const color = up ? '#22c55e' : '#ef4444';
+  const g = ctx.createLinearGradient(0,0,0,H);
+  g.addColorStop(0, up?'rgba(34,197,94,.25)':'rgba(239,68,68,.25)');
+  g.addColorStop(1, up?'rgba(34,197,94,.01)':'rgba(239,68,68,.01)');
+  ctx.beginPath(); ctx.moveTo(xO(0),yO(pts[0]));
+  for(let i=1;i<n;i++){const cx=(xO(i-1)+xO(i))/2;ctx.bezierCurveTo(cx,yO(pts[i-1]),cx,yO(pts[i]),xO(i),yO(pts[i]));}
+  ctx.lineTo(xO(n-1),H);ctx.lineTo(0,H);ctx.closePath();ctx.fillStyle=g;ctx.fill();
+  ctx.beginPath();ctx.moveTo(xO(0),yO(pts[0]));
+  for(let i=1;i<n;i++){const cx=(xO(i-1)+xO(i))/2;ctx.bezierCurveTo(cx,yO(pts[i-1]),cx,yO(pts[i]),xO(i),yO(pts[i]));}
+  ctx.strokeStyle=color;ctx.lineWidth=1.8;ctx.stroke();
+  ctx.beginPath();ctx.arc(xO(n-1),yO(pts[n-1]),2.5,0,Math.PI*2);ctx.fillStyle=color;ctx.fill();
 }
 
 document.getElementById('wi').addEventListener('keydown', e => { if(e.key==='Enter') loginLoad(); });
